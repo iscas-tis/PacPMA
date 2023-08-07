@@ -143,14 +143,17 @@ public class StormTool implements ModelChecker {
             }
             
             Logger.log(Logger.LEVEL_INFO, "StormTool: calling actual solver");
-            List<String> output = new ToolRunner(command).run();
+            ToolRunner toolRunner = new ToolRunner(command); 
+            List<String> output = toolRunner.run();
             Logger.log(Logger.LEVEL_INFO, "StormTool: calling actual solver done");
+            Logger.log(Logger.LEVEL_INFO, "StormTool: exit value: " + toolRunner.getExitValue());
             if (output == null) {
-                throw new RuntimeException("Storm failed to run");
+                throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
             }
             Logger.log(Logger.LEVEL_INFO, "StormTool: extracting result");
             boolean hasFailed = true;
             for (String line : output) {
+                Logger.log(Logger.LEVEL_DEBUG, "StormTool: raw result: " + line);
                 if (line.startsWith(RESULT)) {
                     String result = line.substring(RESULT.length()).trim();
                     ModelCheckerResult modelCheckerResult;
@@ -160,7 +163,6 @@ public class StormTool implements ModelChecker {
                         modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                     }
                     results.put(identifier, modelCheckerResult);
-                    Logger.log(Logger.LEVEL_DEBUG, "StormTool: result " + identifier + ":" + result);
                     hasFailed = false;
                 }
             }

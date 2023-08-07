@@ -140,13 +140,16 @@ public class StormPython implements ModelChecker {
         }
         
         Logger.log(Logger.LEVEL_INFO, "StormPython: calling actual solver");
-        List<String> output = new ToolRunner(command, messages).run();
+        ToolRunner toolRunner = new ToolRunner(command, messages); 
+        List<String> output = toolRunner.run();
         Logger.log(Logger.LEVEL_INFO, "StormPython: calling actual solver done");
+        Logger.log(Logger.LEVEL_INFO, "StormPython: exit value: " + toolRunner.getExitValue());
         if (output == null) {
-            throw new RuntimeException("Storm failed to run");
+            throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
         }
         Logger.log(Logger.LEVEL_INFO, "StormPython: extracting results");
         for (String message: output) {
+            Logger.log(Logger.LEVEL_DEBUG, "StormPython: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
                 String result = messageSplit[2];
@@ -157,7 +160,6 @@ public class StormPython implements ModelChecker {
                     modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                 }
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
-                Logger.log(Logger.LEVEL_DEBUG, "StormPython: result " + messageSplit[1] + ":" + result);
             }
         }
         Logger.log(Logger.LEVEL_INFO, "StormPython: extracting results done");

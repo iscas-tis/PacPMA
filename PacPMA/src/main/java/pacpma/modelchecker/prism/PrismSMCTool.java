@@ -164,14 +164,17 @@ public class PrismSMCTool implements ModelChecker {
             }
             
             Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: calling actual solver");
-            List<String> output = new ToolRunner(command).run();
+            ToolRunner toolRunner = new ToolRunner(command); 
+            List<String> output = toolRunner.run();
             Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: calling actual solver done");
+            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: exit value: " + toolRunner.getExitValue());
             if (output == null) {
-                throw new RuntimeException("Prism failed to run");
+                throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
             }
             Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: extracting result");
             boolean hasFailed = true;
             for (String line : output) {
+                Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: raw result: " + line);
                 if (line.startsWith(RESULT)) {
                     String result = line.split(" ")[1];
                     ModelCheckerResult modelCheckerResult;
@@ -181,7 +184,6 @@ public class PrismSMCTool implements ModelChecker {
                         modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                     }
                     results.put(identifier, modelCheckerResult);
-                    Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: result " + identifier + ":" + result);
                     hasFailed = false;
                 }
             }

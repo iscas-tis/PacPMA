@@ -34,6 +34,7 @@ public class ToolRunner {
     
     private final List<String> command;
     private final List<String> messages;
+    private Integer exitValue = null;
 
     /**
      * Instantiates the runner for the external tool.
@@ -88,6 +89,16 @@ public class ToolRunner {
             }
             break;
         }
+        exitValue = modelCheckerProcess.exitValue();
         return modelCheckerOutput.getLines();
+    }
+    
+    /**
+     * Provides the exit value of the tool, after {@link #run()} has terminated, or {@code null}.
+     * 
+     * @return the exit value of the called tool
+     */
+    public Integer getExitValue() {
+        return exitValue;
     }
 }
