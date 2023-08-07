@@ -164,7 +164,7 @@ public class StormPython implements ModelChecker {
         }
         Logger.log(Logger.LEVEL_INFO, "StormPython: extracting results done");
         if (results.size() != parameterValues.size()) {
-            throw new RuntimeException("Storm failed to run");            
+            throw new RuntimeException("Incorrect number of results; raw output:\n" + output);            
         }
         Logger.log(Logger.LEVEL_INFO, "StormPython: check procedure done");
         return results;

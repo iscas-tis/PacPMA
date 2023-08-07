@@ -152,10 +152,10 @@ public class StormTool implements ModelChecker {
             }
             Logger.log(Logger.LEVEL_INFO, "StormTool: extracting result");
             boolean hasFailed = true;
-            for (String line : output) {
-                Logger.log(Logger.LEVEL_DEBUG, "StormTool: raw result: " + line);
-                if (line.startsWith(RESULT)) {
-                    String result = line.substring(RESULT.length()).trim();
+            for (String message : output) {
+                Logger.log(Logger.LEVEL_DEBUG, "StormTool: raw result: " + message);
+                if (message.startsWith(RESULT)) {
+                    String result = message.substring(RESULT.length()).trim();
                     ModelCheckerResult modelCheckerResult;
                     if (result.equals("inf")) {
                         modelCheckerResult = new ModelCheckerResult();
@@ -167,7 +167,7 @@ public class StormTool implements ModelChecker {
                 }
             }
             if (hasFailed) {
-                throw new RuntimeException("Storm didn't returned a result");
+                throw new RuntimeException("Failed execution; raw output:\n" + output);            
             }
             Logger.log(Logger.LEVEL_INFO, "StormTool: extracting result done");
         }

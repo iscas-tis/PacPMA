@@ -173,10 +173,10 @@ public class PrismSMCTool implements ModelChecker {
             }
             Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: extracting result");
             boolean hasFailed = true;
-            for (String line : output) {
-                Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: raw result: " + line);
-                if (line.startsWith(RESULT)) {
-                    String result = line.split(" ")[1];
+            for (String message : output) {
+                Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: raw result: " + message);
+                if (message.startsWith(RESULT)) {
+                    String result = message.split(" ")[1];
                     ModelCheckerResult modelCheckerResult;
                     if (result.equals("inf")) {
                         modelCheckerResult = new ModelCheckerResult();
@@ -188,7 +188,7 @@ public class PrismSMCTool implements ModelChecker {
                 }
             }
             if (hasFailed) {
-                throw new RuntimeException("Prism didn't returned a result");
+                throw new RuntimeException("Failed execution; raw output:\n" + output);            
             }
             Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: extracting result done");
         }
