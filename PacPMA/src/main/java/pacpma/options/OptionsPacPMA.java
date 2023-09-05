@@ -41,7 +41,9 @@ import pacpma.algebra.Parameter;
 import pacpma.log.Logger;
 import pacpma.lp.solver.LPSolver;
 import pacpma.lp.solver.lpsolve.LPSolveLibrary;
+import pacpma.lp.solver.matlab.MatlabFileTool;
 import pacpma.lp.solver.matlab.MatlabTool;
+import pacpma.lp.solver.octave.OctaveFileTool;
 import pacpma.lp.solver.octave.OctaveTool;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.prism.PrismSMCTool;
@@ -85,12 +87,16 @@ public class OptionsPacPMA {
     
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
     public final static String LPSOLVER_MATLAB = "matlab";
+    public final static String LPSOLVER_MATLAB_FILE = "matlab-file";
     public final static String LPSOLVER_OCTAVE = "octave";
+    public final static String LPSOLVER_OCTAVE_FILE = "octave-file";
     private final static String DEFAULT_LPSOLVER = LPSOLVER_OCTAVE;
     private final static Collection<String> COLLECTION_LPSOLVER = new HashSet<>();
     static {
         COLLECTION_LPSOLVER.add(LPSOLVER_LPSOLVE);
+        COLLECTION_LPSOLVER.add(LPSOLVER_MATLAB_FILE);
         COLLECTION_LPSOLVER.add(LPSOLVER_MATLAB);
+        COLLECTION_LPSOLVER.add(LPSOLVER_OCTAVE_FILE);
         COLLECTION_LPSOLVER.add(LPSOLVER_OCTAVE);
     }
     
@@ -868,8 +874,12 @@ public class OptionsPacPMA {
         switch (lpsolver) {
         case LPSOLVER_LPSOLVE:
             return new LPSolveLibrary();
+        case LPSOLVER_MATLAB_FILE:
+            return new MatlabFileTool();
         case LPSOLVER_MATLAB:
             return new MatlabTool();
+        case LPSOLVER_OCTAVE_FILE:
+            return new OctaveFileTool();
         case LPSOLVER_OCTAVE:
             return new OctaveTool();
         default:
