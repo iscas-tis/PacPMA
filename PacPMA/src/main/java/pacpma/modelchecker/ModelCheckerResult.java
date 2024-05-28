@@ -26,7 +26,7 @@ import java.math.BigDecimal;
  * @author Andrea Turrini
  *
  */
-public class ModelCheckerResult {
+public class ModelCheckerResult implements Comparable<ModelCheckerResult> {
     private final boolean isInfinite;
     private final BigDecimal result;
     
@@ -57,4 +57,29 @@ public class ModelCheckerResult {
         return result;
     }
 
+    @Override
+    public int compareTo(ModelCheckerResult o) {
+        if (isInfinite) {
+            if (o.isInfinite) {
+                return 0;
+            } else {
+                return 1;
+            }
+        } else {
+            if (o.isInfinite) {
+                return -1;
+            } else {
+                return result.compareTo(o.result);
+            }
+        }
+    }
+    
+    @Override
+    public String toString() {
+        if (isInfinite) {
+            return "∞";
+        } else {
+            return result.toString();
+        }
+    }
 }

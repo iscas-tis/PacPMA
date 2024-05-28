@@ -142,6 +142,8 @@ public class OptionsPacPMA {
     
     private final static String DEFAULT_LOGLEVEL = "0";
     private final static String DEFAULT_LOGFILE = "pacpma.log";
+    
+    private final static String DEFAULT_SHOW_RANGE = "false";
 
     private final static Options options = new Options();
 
@@ -171,6 +173,12 @@ public class OptionsPacPMA {
             Option.builder()
                 .longOpt("statistics")
                 .desc("print statistics about the model")
+                .build();
+    
+    private final static Option option_show_range = 
+            Option.builder()
+                .longOpt("showrange")
+                .desc("whether to show the range of the values returned by the model checker; default: " + DEFAULT_SHOW_RANGE)
                 .build();
 
     private final static Option option_samples = 
@@ -382,6 +390,8 @@ public class OptionsPacPMA {
         
         options.addOption(option_statistics);
         
+        options.addOption(option_show_range);
+        
         options.addOption(option_samples);
         options.addOption(option_vertices);
         options.addOption(option_boundary_points);
@@ -410,6 +420,8 @@ public class OptionsPacPMA {
     }
 
     private static boolean printStatistics;
+    
+    private static boolean showRange;
     
     private static int logLevel;
     private static String logFile;
@@ -469,6 +481,8 @@ public class OptionsPacPMA {
                 long tmpLong = 0;
 
                 printStatistics = commandline.hasOption(option_statistics);
+                
+                showRange = commandline.hasOption(option_show_range);
                 
                 try {
                     tmpInt = Integer.valueOf(commandline.getOptionValue(option_logLevel, DEFAULT_LOGLEVEL));
@@ -722,6 +736,13 @@ public class OptionsPacPMA {
      */
     public static boolean printStatistics() {
         return printStatistics;
+    }
+
+    /**
+     * @return whether to show the range
+     */
+    public static boolean showRange() {
+        return showRange;
     }
 
     /**

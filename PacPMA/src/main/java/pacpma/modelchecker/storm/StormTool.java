@@ -34,6 +34,7 @@ import pacpma.externaltool.ToolRunner;
 import pacpma.log.Logger;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
+import pacpma.modelchecker.Range;
 import pacpma.options.OptionsPacPMA;
 
 /**
@@ -51,6 +52,7 @@ public class StormTool implements ModelChecker {
     private List<Constant> constants = null;
     private Map<Integer, List<Constant>> parameterValues = null;
     private List<String> options = null;
+    private Range range = null;
 
     public StormTool() {}
     
@@ -162,6 +164,11 @@ public class StormTool implements ModelChecker {
                     } else {
                         modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                     }
+                    if (range == null) {
+                        range = new Range(modelCheckerResult);
+                    } else {
+                        range.updateRange(modelCheckerResult);
+                    }
                     results.put(identifier, modelCheckerResult);
                     hasFailed = false;
                 }
@@ -173,5 +180,13 @@ public class StormTool implements ModelChecker {
         }
         Logger.log(Logger.LEVEL_INFO, "StormTool: check procedure done");
         return results;
+    }
+
+    @Override
+    public Range range() throws IllegalStateException {
+        if (range == null) {
+            throw new IllegalStateException("No range computed");
+        }
+        return range;
     }
 }

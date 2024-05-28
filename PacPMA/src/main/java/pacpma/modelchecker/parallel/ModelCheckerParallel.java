@@ -26,6 +26,7 @@ import java.util.Map;
 
 import pacpma.log.Logger;
 import pacpma.modelchecker.ModelCheckerResult;
+import pacpma.modelchecker.Range;
 
 /**
  * @author Andrea Turrini
@@ -34,9 +35,11 @@ import pacpma.modelchecker.ModelCheckerResult;
 public class ModelCheckerParallel {
     
     private final Collection<ModelCheckerInstance> modelCheckerInstances;
+    private Range range; 
 
     public ModelCheckerParallel(Collection<ModelCheckerInstance> modelCheckerInstances) {
         this.modelCheckerInstances = modelCheckerInstances;
+        range = new Range();
     }
     
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
@@ -62,9 +65,14 @@ public class ModelCheckerParallel {
         Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome");
         Map<Integer, ModelCheckerResult> results = new HashMap<>();
         modelCheckerInstances.forEach(mci -> {if (mci.getResults() != null) results.putAll(mci.getResults());});
+        modelCheckerInstances.forEach(mci -> {range.updateRange(mci.getRange());});
         Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome done");
 
         Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: check procedure done");
         return results;
+    }
+    
+    public Range getRange() {
+        return range;
     }
 }

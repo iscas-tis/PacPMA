@@ -34,6 +34,7 @@ import pacpma.externaltool.ToolRunner;
 import pacpma.log.Logger;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
+import pacpma.modelchecker.Range;
 import pacpma.options.OptionsPacPMA;
 
 /**
@@ -52,6 +53,7 @@ public class StormPython implements ModelChecker {
     private String propertyFormula = null;
     private List<Constant> constants = null;
     private Map<Integer, List<Constant>> parameterValues = null;
+    private Range range = null;
 
     public StormPython() {}
     
@@ -159,6 +161,11 @@ public class StormPython implements ModelChecker {
                 } else {
                     modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                 }
+                if (range == null) {
+                    range = new Range(modelCheckerResult);
+                } else {
+                    range.updateRange(modelCheckerResult);
+                }
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
             }
         }
@@ -168,5 +175,13 @@ public class StormPython implements ModelChecker {
         }
         Logger.log(Logger.LEVEL_INFO, "StormPython: check procedure done");
         return results;
+    }
+
+    @Override
+    public Range range() throws IllegalStateException {
+        if (range == null) {
+            throw new IllegalStateException("No range computed");
+        }
+        return range;
     }
 }

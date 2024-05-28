@@ -24,6 +24,7 @@ import java.util.Map;
 
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
+import pacpma.modelchecker.Range;
 
 /**
  * @author Andrea Turrini
@@ -33,6 +34,7 @@ public class ModelCheckerInstance extends Thread {
     
     private final ModelChecker modelChecker;
     private Map<Integer, ModelCheckerResult> results = null;
+    private Range range = null;
     
     public ModelCheckerInstance(ModelChecker modelChecker) {
         this.modelChecker = modelChecker;
@@ -41,9 +43,14 @@ public class ModelCheckerInstance extends Thread {
     @Override
     public void run() {
         results = modelChecker.check();
+        range = modelChecker.range();
     }
     
     public Map<Integer, ModelCheckerResult> getResults() {
         return results;
+    }
+    
+    public Range getRange() {
+        return range;
     }
 }

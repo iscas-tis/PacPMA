@@ -106,4 +106,14 @@ public interface ModelChecker {
      *             if the model can't be checked with the provided information
      */
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException;
+    
+    /**
+     * Provides a range of the values computed by the model checker on the provided
+     * constants.
+     * 
+     * @return an interval about the range of the values computed by the model checker
+     * @throws IllegalStateException
+     *             if the model has not been checked yet
+     */
+    public Range range() throws IllegalStateException;
 }
