@@ -53,6 +53,7 @@ public class PrismSMCTool implements ModelChecker {
     private List<Constant> constants = null;
     private Map<Integer, List<Constant>> parameterValues = null;
     private List<String> options = null;
+    private final boolean computeRange = OptionsPacPMA.showRange();
     private Range range = null;
 
     public PrismSMCTool() {}
@@ -185,10 +186,12 @@ public class PrismSMCTool implements ModelChecker {
                     } else {
                         modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                     }
-                    if (range == null) {
-                        range = new Range(modelCheckerResult);
-                    } else {
-                        range.updateRange(modelCheckerResult);
+                    if (computeRange) {
+                        if (range == null) {
+                            range = new Range(modelCheckerResult);
+                        } else {
+                            range.updateRange(modelCheckerResult);
+                        }
                     }
                     results.put(identifier, modelCheckerResult);
                     hasFailed = false;
@@ -204,10 +207,7 @@ public class PrismSMCTool implements ModelChecker {
     }
 
     @Override
-    public Range range() throws IllegalStateException {
-        if (range == null) {
-            throw new IllegalStateException("No range computed");
-        }
+    public Range getRange() {
         return range;
     }
 }

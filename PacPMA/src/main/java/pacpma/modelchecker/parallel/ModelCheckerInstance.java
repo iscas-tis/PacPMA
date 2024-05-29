@@ -43,7 +43,7 @@ public class ModelCheckerInstance extends Thread {
     @Override
     public void run() {
         results = modelChecker.check();
-        range = modelChecker.range();
+        range = modelChecker.getRange();
     }
     
     public Map<Integer, ModelCheckerResult> getResults() {

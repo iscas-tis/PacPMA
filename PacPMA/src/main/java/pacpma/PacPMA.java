@@ -146,10 +146,10 @@ public final class PacPMA {
             
             Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling model checker");
             Map<Integer, ModelCheckerResult> modelcheckerResults = modelcheckerparallel.check();
-            Range range = modelcheckerparallel.getRange();
             Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling model checker done");
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
             if (OptionsPacPMA.showRange()) {
+                Range range = modelcheckerparallel.getRange();
+                Logger.log(Logger.LEVEL_INFO, "PacPMA: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
                 System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
             }
             

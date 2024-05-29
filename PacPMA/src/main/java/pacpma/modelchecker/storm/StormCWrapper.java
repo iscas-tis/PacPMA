@@ -53,6 +53,7 @@ public class StormCWrapper implements ModelChecker {
     private String propertyFormula = null;
     private List<Constant> constants = null;
     private Map<Integer, List<Constant>> parameterValues = null;
+    private final boolean computeRange = OptionsPacPMA.showRange();
     private Range range = null;
 
     public StormCWrapper() {}
@@ -161,10 +162,12 @@ public class StormCWrapper implements ModelChecker {
                 } else {
                     modelCheckerResult = new ModelCheckerResult(new BigDecimal(result));
                 }
-                if (range == null) {
-                    range = new Range(modelCheckerResult);
-                } else {
-                    range.updateRange(modelCheckerResult);
+                if (computeRange) {
+                    if (range == null) {
+                        range = new Range(modelCheckerResult);
+                    } else {
+                        range.updateRange(modelCheckerResult);
+                    }
                 }
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
             }
@@ -178,10 +181,7 @@ public class StormCWrapper implements ModelChecker {
     }
 
     @Override
-    public Range range() throws IllegalStateException {
-        if (range == null) {
-            throw new IllegalStateException("No range computed");
-        }
+    public Range getRange() {
         return range;
     }
 }
