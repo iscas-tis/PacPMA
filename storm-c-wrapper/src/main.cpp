@@ -1,5 +1,5 @@
-#include<iostream>
-#include<string>
+#include <iostream>
+#include <string>
 
 #include "storm-config.h"
 
@@ -10,8 +10,8 @@
 #include "storm/utility/initialize.h"
 #include "storm/utility/constants.h"
 #include "storm/adapters/RationalFunctionAdapter.h"
-#include<carl/numbers/numbers.h>
-#include<carl/core/VariablePool.h>
+#include <carl/numbers/numbers.h>
+#include <carl/core/VariablePool.h>
 
 
 #include "storm/settings/SettingsManager.h"
