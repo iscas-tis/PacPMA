@@ -36,13 +36,14 @@ import pacpma.options.OptionsPacPMA;
 public class ModelCheckerParallel {
     
     private final Collection<ModelCheckerInstance> modelCheckerInstances;
-    private final boolean computeRange = OptionsPacPMA.showRange();
-    private Range range = null;
+    private final Range range;
 
     public ModelCheckerParallel(Collection<ModelCheckerInstance> modelCheckerInstances) {
         this.modelCheckerInstances = modelCheckerInstances;
-        if (computeRange) {
+        if (OptionsPacPMA.showRange()) {
             range = new Range();
+        } else {
+            range = null;
         }
     }
     
@@ -69,8 +70,8 @@ public class ModelCheckerParallel {
         Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome");
         Map<Integer, ModelCheckerResult> results = new HashMap<>();
         modelCheckerInstances.forEach(mci -> {if (mci.getResults() != null) results.putAll(mci.getResults());});
-        if (computeRange) {
-            modelCheckerInstances.forEach(mci -> {range.updateRange(mci.getRange());});
+        if (range != null) {
+            modelCheckerInstances.forEach(mci -> {if (mci.getRange() != null) range.updateRange(mci.getRange());});
         }
         Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome done");
 
