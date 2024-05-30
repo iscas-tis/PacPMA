@@ -64,19 +64,20 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
             break;
         }
         
-        std::vector<std::string> argument;
-        boost::split(argument, line, boost::is_any_of(":"));
-        std::string identifier = argument[0];
+        std::vector<std::string> instanceValues;
+        boost::split(instanceValues, line, boost::is_any_of(":"));
 
-        storm::models::sparse::Ctmc<double> const& concrete_ctmc(modelInstantiator.instantiate(getParameterValues(argument[1], variables)));
+        std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
-        storm::modelchecker::SparseCtmcCslModelChecker<storm::models::sparse::Ctmc<double>> checker(concrete_ctmc);
-        
-        std::unique_ptr<storm::modelchecker::CheckResult> result = checker.check(*formula);
-        
-        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = result->asExplicitQuantitativeCheckResult<double>();
-        
-        std::cout << "StormCWrapper_RESULT:" << identifier << ":" << quantitativeResult[*concrete_ctmc.getInitialStates().begin()] << "\n";
+        storm::models::sparse::Ctmc<double> const& concrete_model(modelInstantiator.instantiate(parameterValues));
+
+        storm::modelchecker::SparseCtmcCslModelChecker<storm::models::sparse::Ctmc<double>> checker(concrete_model);
+            
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+            
+        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
+            
+        std::cout << "StormCWrapper_RESULT:" << instanceValues[0] << ":" << quantitativeResult[*concrete_model.getInitialStates().begin()] << "\n";
     }
 }
 
@@ -91,19 +92,20 @@ void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFuncti
             break;
         }
         
-        std::vector<std::string> argument;
-        boost::split(argument, line, boost::is_any_of(":"));
-        std::string identifier = argument[0];
+        std::vector<std::string> instanceValues;
+        boost::split(instanceValues, line, boost::is_any_of(":"));
 
-        storm::models::sparse::Dtmc<double> const& concrete_dtmc(modelInstantiator.instantiate(getParameterValues(argument[1], variables)));
+        std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
-        storm::modelchecker::SparseDtmcPrctlModelChecker<storm::models::sparse::Dtmc<double>> checker(concrete_dtmc);
-        
-        std::unique_ptr<storm::modelchecker::CheckResult> result = checker.check(*formula);
-        
-        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = result->asExplicitQuantitativeCheckResult<double>();
-        
-        std::cout << "StormCWrapper_RESULT:" << identifier << ":" << quantitativeResult[*concrete_dtmc.getInitialStates().begin()] << "\n";
+        storm::models::sparse::Dtmc<double> const& concrete_model(modelInstantiator.instantiate(parameterValues));
+
+        storm::modelchecker::SparseDtmcPrctlModelChecker<storm::models::sparse::Dtmc<double>> checker(concrete_model);
+            
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+            
+        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
+            
+        std::cout << "StormCWrapper_RESULT:" << instanceValues[0] << ":" << quantitativeResult[*concrete_model.getInitialStates().begin()] << "\n";
     }
 }
 
@@ -118,19 +120,20 @@ void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction
             break;
         }
         
-        std::vector<std::string> argument;
-        boost::split(argument, line, boost::is_any_of(":"));
-        std::string identifier = argument[0];
+        std::vector<std::string> instanceValues;
+        boost::split(instanceValues, line, boost::is_any_of(":"));
 
-        storm::models::sparse::Mdp<double> const& concrete_mdp(modelInstantiator.instantiate(getParameterValues(argument[1], variables)));
+        std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
-        storm::modelchecker::SparseMdpPrctlModelChecker<storm::models::sparse::Mdp<double>> checker(concrete_mdp);
-        
-        std::unique_ptr<storm::modelchecker::CheckResult> result = checker.check(*formula);
-        
-        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = result->asExplicitQuantitativeCheckResult<double>();
-        
-        std::cout << "StormCWrapper_RESULT:" << identifier << ":" << quantitativeResult[*concrete_mdp.getInitialStates().begin()] << "\n";
+        storm::models::sparse::Mdp<double> const& concrete_model(modelInstantiator.instantiate(parameterValues));
+
+        storm::modelchecker::SparseMdpPrctlModelChecker<storm::models::sparse::Mdp<double>> checker(concrete_model);
+            
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+            
+        storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
+            
+        std::cout << "StormCWrapper_RESULT:" << instanceValues[0] << ":" << quantitativeResult[*concrete_model.getInitialStates().begin()] << "\n";
     }
 }
 
