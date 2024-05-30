@@ -60,6 +60,10 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
 
     std::string line;
     while (std::getline(std::cin, line)) {
+        if ("EOF" == line) {
+            break;
+        }
+        
         std::vector<std::string> argument;
         boost::split(argument, line, boost::is_any_of(":"));
         std::string identifier = argument[0];
@@ -110,6 +114,10 @@ void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction
 
     std::string line;
     while (std::getline(std::cin, line)) {
+        if ("EOF" == line) {
+            break;
+        }
+        
         std::vector<std::string> argument;
         boost::split(argument, line, boost::is_any_of(":"));
         std::string identifier = argument[0];
