@@ -1,30 +1,24 @@
 #include <iostream>
 #include <string>
 
-#include "storm-config.h"
-
 #include <boost/algorithm/string.hpp>
 
 #include <l3pp.h>
 
-#include "storm/utility/initialize.h"
-#include "storm/utility/constants.h"
+#include "storm-config.h"
 #include "storm/adapters/RationalFunctionAdapter.h"
-#include <carl/numbers/numbers.h>
-#include <carl/core/VariablePool.h>
-
-
-#include "storm/settings/SettingsManager.h"
-#include "storm/settings/modules/GeneralSettings.h"
-
-#include "storm-pars/utility/ModelInstantiator.h"
 #include "storm/api/storm.h"
-#include "storm-parsers/api/storm-parsers.h"
-#include "storm/models/sparse/Model.h"
+#include "storm/modelchecker/results/ExplicitQuantitativeCheckResult.h"
 #include "storm/models/sparse/Ctmc.h"
 #include "storm/models/sparse/Dtmc.h"
 #include "storm/models/sparse/Mdp.h"
-#include "storm/modelchecker/results/ExplicitQuantitativeCheckResult.h"
+#include "storm/models/sparse/Model.h"
+#include "storm/settings/SettingsManager.h"
+#include "storm/settings/modules/GeneralSettings.h"
+#include "storm/utility/initialize.h"
+#include "storm/utility/constants.h"
+#include "storm-pars/utility/ModelInstantiator.h"
+#include "storm-parsers/api/storm-parsers.h"
 #include "storm/storage/jani/Property.h"
 
 
