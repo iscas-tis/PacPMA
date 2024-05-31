@@ -50,6 +50,7 @@ import pacpma.modelchecker.prism.PrismSMCTool;
 import pacpma.modelchecker.storm.StormCWrapper;
 import pacpma.modelchecker.storm.StormPython;
 import pacpma.modelchecker.storm.StormTool;
+import pacpma.modelchecker.storm.StormsmcCWrapper;
 import pacpma.util.Util;
 
 /**
@@ -104,6 +105,7 @@ public class OptionsPacPMA {
     public final static String MODELCHECKER_STORM = "storm";
     public final static String MODELCHECKER_STORMC = "stormc";
     public final static String MODELCHECKER_STORMPY = "stormpy";
+    public final static String MODELCHECKER_STORMSMCC = "stormsmcc";
     private final static String DEFAULT_MODELCHECKER = MODELCHECKER_STORMC;
     private final static Collection<String> COLLECTION_MODELCHECKER = new HashSet<>();
     static {
@@ -111,6 +113,7 @@ public class OptionsPacPMA {
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORM);
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMC);
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMPY);
+        COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMSMCC);
     }
     
     public final static String DEFAULT_MODELCHECKER_THREADS = "1";
@@ -945,6 +948,8 @@ public class OptionsPacPMA {
             return new StormCWrapper();
         case MODELCHECKER_STORMPY:
             return new StormPython();
+        case MODELCHECKER_STORMSMCC:
+            return new StormsmcCWrapper();
         default:
             throw new UnsupportedOperationException("Unexpected model checker");
         }
