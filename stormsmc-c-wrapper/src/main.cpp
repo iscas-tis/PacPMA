@@ -92,7 +92,7 @@ int main (int argc, char *argv[]) {
             result = checkMdp(instantiatedProgram, formula);
         }
             
-        std::cout << "StormCWrapper_RESULT:" << instanceValues[0] << ":" << result << "\n";
+        std::cout << "StormsmcCWrapper_RESULT:" << instanceValues[0] << ":" << result << "\n";
     }
     return 0;
 }
