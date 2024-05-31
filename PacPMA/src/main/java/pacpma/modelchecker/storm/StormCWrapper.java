@@ -130,12 +130,14 @@ public class StormCWrapper implements ModelChecker {
         command.add(filePath);
         command.add(propertyFormula);
 
-        StringBuilder sbc = new StringBuilder();
-        constants.forEach(c -> appendConstant(sbc, c));
-        command.add(sbc.toString());
+        {
+            final StringBuilder sbc = new StringBuilder();
+            constants.forEach(c -> appendConstant(sbc, c));
+            command.add(sbc.toString());
+        }
         
         for (Integer identifier : parameterValues.keySet()) {
-            StringBuilder sbp = new StringBuilder();
+            final StringBuilder sbp = new StringBuilder();
             parameterValues.get(identifier).forEach(c -> appendConstant(sbp, c));
             sbp.insert(0,identifier + FIELD_SEPARATOR);
             Logger.log(Logger.LEVEL_DEBUG, "StormCWrapper: sample " + sbp.toString());
