@@ -1073,7 +1073,7 @@ public class OptionsPacPMA {
     }
     
     private static String getInvalidMessage(CommandLine commandline, Option option) {
-        return "The provided value '" + commandline.getOptionValue(option) + "' for the option"
+        return "The provided value '" + commandline.getOptionValue(option) + "' for the option "
                 + option.getLongOpt() + " is not valid";
     }
     
