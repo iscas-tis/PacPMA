@@ -99,7 +99,6 @@ public class Logger {
         }
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             bw.write(log.toString());
-            log.setLength(0);
             return true;
         } catch (Exception e) {
             return false;
