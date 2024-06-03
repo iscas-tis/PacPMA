@@ -22,69 +22,88 @@ package pacpma.log;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
 
 import pacpma.options.OptionsPacPMA;
 
 /**
+ * On-file log engine.
+ * 
+ * Saves immediately all messages sent to this log engine on file.
+ * 
  * @author Andrea Turrini
  *
  */
-public class MemoryLogEngine implements LogEngine {
+public class OnfileLogEngine implements LogEngine {
     private static final long startTime = System.currentTimeMillis();
     
     private static int logLevel;
-    private static String filePath;
     private static boolean isClosed;
     
-    private static final StringBuilder log = new StringBuilder();
+    private static BufferedWriter logbw = null;
     
+    @Override
     public void setup(int level, String filepath) {
+        if (!OptionsPacPMA.useLogging()) {
+            return;
+        }
+       
         logLevel = level;
-        filePath = filepath;
         isClosed = false;
-        log(LEVEL_INFO, "MemoryLogEngine initialized");
+        
+        try {
+            logbw = new BufferedWriter(new FileWriter(filepath));
+        } catch (IOException ioe) {
+            logbw = null;
+            System.err.println("OnfileLogEngine: failed to open the log file " + filepath);
+        }
+        log(LEVEL_INFO, "OnfileLogEngine initialized");
     }
     
+    @Override
     public synchronized void log(int level, String message) {
         if (isClosed) {
             return;
         }
-        if (!OptionsPacPMA.useLogging()) {
-            return;
-        }
-        if (filePath == null) {
-            throw new IllegalStateException("MemoryLogEngine not initialized");
+        if (logbw == null) {
+            throw new IllegalStateException("OnfileLogEngine not initialized");
         }
         if (level <= logLevel) {
-            log.append("L")
-                .append(level)
-                .append(" ")
-                .append(System.currentTimeMillis() - startTime)
-                .append(": ")
-                .append(message)
-                .append("\n");
+            try {
+                logbw.write("L" + level + " " + (System.currentTimeMillis() - startTime) + ": " + message + "\n");
+                logbw.flush();
+            } catch (IOException ioe) {
+            }
         }
     }
     
-    public boolean saveToFile() {
+    @Override
+    public void flush() {
         if (isClosed) {
-            return false;
+            return;
         }
-        log(LEVEL_INFO, "Writing log to file");
-        if (filePath == null) {
-            throw new IllegalStateException("MemoryLogEngine not initialized");
+        if (logbw == null) {
+            throw new IllegalStateException("OnfileLogEngine not initialized");
         }
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
-            bw.write(log.toString());
-            return true;
+        try {
+            logbw.flush();
         } catch (Exception e) {
-            return false;
         }
     }
     
+    @Override
     public void close() {
-        log(LEVEL_INFO, "Closing the log");
-        saveToFile();
-        isClosed = true;
+        if (isClosed) {
+            return;
+        }
+        if (logbw == null) {
+            throw new IllegalStateException("OnfileLogEngine not initialized");
+        }
+        log(LEVEL_INFO, "OnfileLogEngine: closing the log");
+        try {
+            logbw.close();
+            isClosed = true;
+        } catch (IOException ioe) {
+        }
     }
 }

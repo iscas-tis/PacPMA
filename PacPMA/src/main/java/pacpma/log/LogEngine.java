@@ -40,7 +40,7 @@ public interface LogEngine {
      * @param filepath
      *            the file path where to store the logged messages
      */
-    public void setup(int level, String filepath);
+    default public void setup(int level, String filepath) {};
     
     /**
      * Stores the message in the log, provided that its level is at least the one
@@ -51,16 +51,12 @@ public interface LogEngine {
      * @param message
      *            the message
      */
-    public void log(int level, String message);
+    default public void log(int level, String message) {};
     
     /**
-     * Saves the logged messages into the provided file.
-     * 
-     * @param filepath
-     *            the file path
-     * @return whether the log has been saved to file without raising errors
+     * Flushes the logged messages into the provided file.
      */
-    public boolean saveToFile();
+    default public void flush() {};
     
     /**
      * Closes the log.
@@ -68,5 +64,5 @@ public interface LogEngine {
      * The fate of messages sent to the log after closing it is undefined.
      */
     
-    public void close();
+    default public void close() {};
 }

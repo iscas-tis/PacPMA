@@ -22,82 +22,75 @@ package pacpma.log;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.io.IOException;
 
 import pacpma.options.OptionsPacPMA;
 
 /**
+ * In-memory log engine.
+ * 
+ * Keeps all messages sent to this log engine in memory until a {@link #flush()} or {@link #close()} call occurs.
+ * 
  * @author Andrea Turrini
  *
  */
-public class FileLogEngine implements LogEngine {
+public class InmemoryLogEngine implements LogEngine {
     private static final long startTime = System.currentTimeMillis();
     
     private static int logLevel;
+    private static String filePath;
     private static boolean isClosed;
     
-    private static BufferedWriter logbw = null;
+    private static final StringBuilder log = new StringBuilder();
     
+    @Override
     public void setup(int level, String filepath) {
-        if (!OptionsPacPMA.useLogging()) {
-            return;
-        }
-       
         logLevel = level;
+        filePath = filepath;
         isClosed = false;
-        
-        try {
-            logbw = new BufferedWriter(new FileWriter(filepath));
-        } catch (IOException ioe) {
-            logbw = null;
-            System.err.println("FileLogEngine: failed to open the log file " + filepath);
-        }
-        log(LEVEL_INFO, "FileLogEngine initialized");
+        log(LEVEL_INFO, "InmemoryLogEngine initialized");
     }
     
+    @Override
     public synchronized void log(int level, String message) {
         if (isClosed) {
             return;
         }
-
         if (!OptionsPacPMA.useLogging()) {
             return;
         }
-        if (logbw == null) {
-            throw new IllegalStateException("FileLogEngine not initialized");
+        if (filePath == null) {
+            throw new IllegalStateException("InmemoryLogEngine not initialized");
         }
         if (level <= logLevel) {
-            try {
-                logbw.append("L" + level + " " + (System.currentTimeMillis() - startTime) + ": " + message + "\n");
-            } catch (IOException ioe) {
-            }
+            log.append("L")
+                .append(level)
+                .append(" ")
+                .append(System.currentTimeMillis() - startTime)
+                .append(": ")
+                .append(message)
+                .append("\n");
         }
     }
     
-    public boolean saveToFile() {
-        if (isClosed) {
-            return false;
-        }
-        log(LEVEL_INFO, "Writing log to file");
-        if (logbw == null) {
-            throw new IllegalStateException("FileLogEngine not initialized");
-        }
-        try {
-            logbw.flush();
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
-    
-    public void close() {
+    @Override
+    public void flush() {
         if (isClosed) {
             return;
         }
-        try {
-            logbw.close();
-            isClosed = true;
-        } catch (IOException ioe) {
+        if (filePath == null) {
+            throw new IllegalStateException("InmemoryLogEngine not initialized");
         }
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            bw.write(log.toString());
+        } catch (Exception e) {
+        }
+    }
+    
+    @Override
+    public void close() {
+        log(LEVEL_INFO, "InmemoryLogEngine: closing the log");
+        flush();
+        isClosed = true;
+        log.setLength(0);
     }
 }

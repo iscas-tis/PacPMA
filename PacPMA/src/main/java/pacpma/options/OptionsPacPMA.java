@@ -38,9 +38,10 @@ import org.apache.commons.cli.ParseException;
 
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
-import pacpma.log.FileLogEngine;
+import pacpma.log.OnfileLogEngine;
 import pacpma.log.LogEngine;
-import pacpma.log.MemoryLogEngine;
+import pacpma.log.NullLogEngine;
+import pacpma.log.InmemoryLogEngine;
 import pacpma.lp.solver.LPSolver;
 import pacpma.lp.solver.lpsolve.LPSolveLibrary;
 import pacpma.lp.solver.matlab.MatlabFileTool;
@@ -961,15 +962,19 @@ public class OptionsPacPMA {
      */
     public static LogEngine getLogEngineInstance() {
         if (logEngineInstance == null) {
-            switch (logEngine) {
-            case LOGENGINE_INMEMORY:
-                logEngineInstance = new MemoryLogEngine();
-                break;
-            case LOGENGINE_ONFILE:
-                logEngineInstance = new FileLogEngine();
-                break;
-            default:
-                throw new UnsupportedOperationException("Unexpected logger");
+            if (useLog) {
+                switch (logEngine) {
+                case LOGENGINE_INMEMORY:
+                    logEngineInstance = new InmemoryLogEngine();
+                    break;
+                case LOGENGINE_ONFILE:
+                    logEngineInstance = new OnfileLogEngine();
+                    break;
+                default:
+                    throw new UnsupportedOperationException("Unexpected logger");
+                }
+            } else {
+                logEngineInstance = new NullLogEngine();
             }
         }
         return logEngineInstance;

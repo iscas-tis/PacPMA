@@ -160,7 +160,7 @@ public final class PacPMA {
         }
         
         if (OptionsPacPMA.useLogging()) {
-            logEngineInstance.saveToFile();
+            logEngineInstance.flush();
         }
 
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Collecting model checker results");
@@ -172,7 +172,7 @@ public final class PacPMA {
                     System.out.println("No result computed");
                     logEngineInstance.log(LogEngine.LEVEL_ERROR, "No result computed");
                     if (OptionsPacPMA.useLogging()) {
-                        logEngineInstance.saveToFile();
+                        logEngineInstance.flush();
                     }
                     return;
                 }
@@ -182,7 +182,7 @@ public final class PacPMA {
                     logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: not computed");
                     logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: infinity");
                     if (OptionsPacPMA.useLogging()) {
-                        logEngineInstance.saveToFile();
+                        logEngineInstance.flush();
                     }
                     return;
                 }
@@ -229,7 +229,7 @@ public final class PacPMA {
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + polynomialExpression);
         }
         if (OptionsPacPMA.useLogging()) {
-            logEngineInstance.saveToFile();
+            logEngineInstance.flush();
         }
     }
 }
