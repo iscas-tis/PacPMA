@@ -31,7 +31,7 @@ import java.util.Map;
 
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
@@ -44,6 +44,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class StormTool implements ModelChecker {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     private final static String RESULT = "Result (for initial states):";
     
     private String filePath = null;
@@ -100,7 +102,7 @@ public class StormTool implements ModelChecker {
 
     @Override
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        Logger.log(Logger.LEVEL_INFO, "StormTool: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormTool: starting check procedure");
         if (filePath == null) {
             throw new IllegalStateException("Model file not specified");
         }
@@ -140,23 +142,23 @@ public class StormTool implements ModelChecker {
                 command.add("--constants");
                 command.add(sb.toString());
             }
-            Logger.log(Logger.LEVEL_DEBUG, "StormTool: sample " + sb.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormTool: sample " + sb.toString());
             if (options != null) {
                 options.forEach((o) -> command.add(o));
             }
             
-            Logger.log(Logger.LEVEL_INFO, "StormTool: calling actual solver");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: calling actual solver");
             ToolRunner toolRunner = new ToolRunner(command); 
             List<String> output = toolRunner.run();
-            Logger.log(Logger.LEVEL_INFO, "StormTool: calling actual solver done");
-            Logger.log(Logger.LEVEL_INFO, "StormTool: exit value: " + toolRunner.getExitValue());
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: calling actual solver done");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: exit value: " + toolRunner.getExitValue());
             if (output == null) {
                 throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
             }
-            Logger.log(Logger.LEVEL_INFO, "StormTool: extracting result");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: extracting result");
             boolean hasFailed = true;
             for (String message : output) {
-                Logger.log(Logger.LEVEL_DEBUG, "StormTool: raw result: " + message);
+                logEngine.log(LogEngine.LEVEL_DEBUG, "StormTool: raw result: " + message);
                 if (message.startsWith(RESULT)) {
                     String result = message.substring(RESULT.length()).trim();
                     ModelCheckerResult modelCheckerResult;
@@ -179,9 +181,9 @@ public class StormTool implements ModelChecker {
             if (hasFailed) {
                 throw new RuntimeException("Failed execution; raw output:\n" + output);            
             }
-            Logger.log(Logger.LEVEL_INFO, "StormTool: extracting result done");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: extracting result done");
         }
-        Logger.log(Logger.LEVEL_INFO, "StormTool: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormTool: check procedure done");
         return results;
     }
 

@@ -38,7 +38,9 @@ import org.apache.commons.cli.ParseException;
 
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
-import pacpma.log.Logger;
+import pacpma.log.FileLogEngine;
+import pacpma.log.LogEngine;
+import pacpma.log.MemoryLogEngine;
 import pacpma.lp.solver.LPSolver;
 import pacpma.lp.solver.lpsolve.LPSolveLibrary;
 import pacpma.lp.solver.matlab.MatlabFileTool;
@@ -101,6 +103,15 @@ public class OptionsPacPMA {
         COLLECTION_LPSOLVER.add(LPSOLVER_OCTAVE);
     }
     
+    public final static String LOGENGINE_INMEMORY = "inmemory";
+    public final static String LOGENGINE_ONFILE = "onfile";
+    private final static String DEFAULT_LOGENGINE = LOGENGINE_ONFILE;
+    private final static Collection<String> COLLECTION_LOGENGINE = new HashSet<>();
+    static {
+        COLLECTION_LOGENGINE.add(LOGENGINE_INMEMORY);
+        COLLECTION_LOGENGINE.add(LOGENGINE_ONFILE);
+    }
+    
     public final static String MODELCHECKER_PRISMSMC = "prismsmc";
     public final static String MODELCHECKER_STORM = "storm";
     public final static String MODELCHECKER_STORMC = "stormc";
@@ -156,12 +167,20 @@ public class OptionsPacPMA {
                 .desc("print this help and exit")
                 .build();
 
+    private final static Option option_logEngine = 
+            Option.builder()
+                .longOpt("log-engine")
+                .hasArg()
+                .argName(getAlternatives(COLLECTION_LOGENGINE))
+                .desc("log engine; default: " + DEFAULT_LOGENGINE)
+                .build();
+    
     private final static Option option_logLevel = 
             Option.builder()
-            .longOpt("log")
+            .longOpt("log-level")
             .hasArg()
             .argName("level")
-            .desc("the log level to use, with " + Logger.LEVEL_NONE + " (no log) ≤ level ≤ " + Logger.LEVEL_ALL + " (full log); default: " + DEFAULT_LOGLEVEL)
+            .desc("the log level to use, with " + LogEngine.LEVEL_NONE + " (no log) ≤ level ≤ " + LogEngine.LEVEL_ALL + " (full log); default: " + DEFAULT_LOGLEVEL)
             .build();
             
     private final static Option option_logFile = 
@@ -388,6 +407,7 @@ public class OptionsPacPMA {
     static {
         options.addOption(option_help);
         
+        options.addOption(option_logEngine);
         options.addOption(option_logLevel);
         options.addOption(option_logFile);
         
@@ -426,6 +446,7 @@ public class OptionsPacPMA {
     
     private static boolean showRange;
     
+    private static String logEngine;
     private static int logLevel;
     private static String logFile;
     private static boolean useLog;
@@ -459,6 +480,8 @@ public class OptionsPacPMA {
     private static List<Constant> constants;
     private static List<Parameter> parameters;
 
+    private static LogEngine logEngineInstance = null; 
+    
     /**
      * Parse and check the command line arguments to extract the options for the PAC
      * Model checker.
@@ -487,17 +510,22 @@ public class OptionsPacPMA {
                 
                 showRange = commandline.hasOption(option_show_range);
                 
+                logEngine = commandline.getOptionValue(option_logEngine, DEFAULT_LOGENGINE);
+                if (!COLLECTION_LOGENGINE.contains(logEngine)) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_logEngine));
+                }
+
                 try {
                     tmpInt = Integer.valueOf(commandline.getOptionValue(option_logLevel, DEFAULT_LOGLEVEL));
                     if (tmpInt < 0) {
-                        parsingErrors.add("The option " + option_logLevel.getLongOpt() + " must be between " + Logger.LEVEL_NONE + " and " + Logger.LEVEL_ALL);
+                        parsingErrors.add("The option " + option_logLevel.getLongOpt() + " must be between " + LogEngine.LEVEL_NONE + " and " + LogEngine.LEVEL_ALL);
                     }
                 } catch (NumberFormatException nfe) {
                     parsingErrors.add(getInvalidMessage(commandline, option_logLevel));
                 }
                 logLevel = tmpInt;
                 
-                useLog = logLevel > Logger.LEVEL_NONE;
+                useLog = logLevel > LogEngine.LEVEL_NONE;
 
                 logFile = commandline.getOptionValue(option_logFile, DEFAULT_LOGFILE) ;
                 
@@ -926,6 +954,28 @@ public class OptionsPacPMA {
     }
 
     /**
+     * Generates and returns a new instance of the log engine specified as option
+     * at command line.
+     * 
+     * @return an instance of the chosen log engine
+     */
+    public static LogEngine getLogEngineInstance() {
+        if (logEngineInstance == null) {
+            switch (logEngine) {
+            case LOGENGINE_INMEMORY:
+                logEngineInstance = new MemoryLogEngine();
+                break;
+            case LOGENGINE_ONFILE:
+                logEngineInstance = new FileLogEngine();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unexpected logger");
+            }
+        }
+        return logEngineInstance;
+    }
+
+   /**
      * @return the model checker
      */
     public static String getModelChecker() {

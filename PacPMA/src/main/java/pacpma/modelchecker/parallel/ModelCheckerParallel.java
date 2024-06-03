@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
 import pacpma.options.OptionsPacPMA;
@@ -34,7 +34,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class ModelCheckerParallel {
-    
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+       
     private final Collection<ModelCheckerInstance> modelCheckerInstances;
     private final Range range;
 
@@ -48,13 +49,13 @@ public class ModelCheckerParallel {
     }
     
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerParallel: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerParallel: starting check procedure");
         
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: starting threads");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: starting threads");
         modelCheckerInstances.forEach(mci -> mci.start());
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: starting threads done");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: starting threads done");
 
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: waiting for threads' termination");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: waiting for threads' termination");
         modelCheckerInstances.forEach(mci -> {
             while (true) {
                 try {
@@ -65,17 +66,17 @@ public class ModelCheckerParallel {
                 break;
             }
         });
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: waiting for threads' termination done");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: waiting for threads' termination done");
 
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome");
         Map<Integer, ModelCheckerResult> results = new HashMap<>();
         modelCheckerInstances.forEach(mci -> {if (mci.getResults() != null) results.putAll(mci.getResults());});
         if (range != null) {
             modelCheckerInstances.forEach(mci -> {if (mci.getRange() != null) range.updateRange(mci.getRange());});
         }
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome done");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: collecting threads's outcome done");
 
-        Logger.log(Logger.LEVEL_INFO, "ModelCheckerWrapper: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "ModelCheckerWrapper: check procedure done");
         return results;
     }
     

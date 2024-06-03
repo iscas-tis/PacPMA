@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import pacpma.externaltool.ToolRunner;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
 import pacpma.lp.OptimizationDirection;
@@ -48,6 +48,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class MatlabTool implements LPSolver {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     private final static String FIELD_SEPARATOR = ":";
     private final static String ENTRY_SEPARATOR = ",";
     
@@ -88,7 +90,7 @@ public class MatlabTool implements LPSolver {
     
     @Override
     public void setVariables(List<LPVariable> listOfVariables) {
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: setting variables");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: setting variables");
         assert solverExpectedStep == LPSolverExecutionStep.SET_VARIABLES;
         solverExpectedStep = LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         
@@ -111,12 +113,12 @@ public class MatlabTool implements LPSolver {
         }
         lowerbound.append("];\n");
         upperbound.append("];\n");
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: setting variables done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: setting variables done");
     }
 
     @Override
     public void setObjectiveFunction(OptimizationDirection direction, Map<LPVariable, BigDecimal> terms) {
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: setting objective");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: setting objective");
         assert solverExpectedStep == LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         solverExpectedStep = LPSolverExecutionStep.ADD_CONSTRAINTS;
         
@@ -141,7 +143,7 @@ public class MatlabTool implements LPSolver {
             }
         }
         objectiveFunction.append("];\n");
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: setting objective done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: setting objective done");
     }
 
     @Override
@@ -175,13 +177,13 @@ public class MatlabTool implements LPSolver {
 
     @Override
     public Map<LPVariable, BigDecimal> solve() {
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: starting solving problem");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: starting solving problem");
         assert solverExpectedStep == LPSolverExecutionStep.ADD_CONSTRAINTS;
         solverExpectedStep = LPSolverExecutionStep.SOLVED;
         
         StringBuffer lpProblem = new StringBuffer();
         
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: creating LP problem file");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: creating LP problem file");
 
         File lpproblemMatrixATempFile = null;
         try {
@@ -236,9 +238,9 @@ public class MatlabTool implements LPSolver {
         } catch (IOException ioe) {
             return null;
         }
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: creating LP problem file done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: creating LP problem file done");
         
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: calling matlab");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: calling matlab");
         String fileName = lpproblemTempFile.getName();
         fileName = fileName.substring(0, fileName.lastIndexOf('.'));
         
@@ -252,7 +254,7 @@ public class MatlabTool implements LPSolver {
         command.add(fileName);
         
         List<String> matlabOutput = new ToolRunner(command).run();
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: calling matlab done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: calling matlab done");
         
         // first line is "exitflag:number"
         if (!"1".equals(matlabOutput.get(0).split(FIELD_SEPARATOR)[1])) {
@@ -260,7 +262,7 @@ public class MatlabTool implements LPSolver {
             return null;
         }
         
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: collecting output values");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: collecting output values");
         // second line is "opt_var:value,value,..."
         Map<LPVariable, BigDecimal> results = new HashMap<>();
 
@@ -270,9 +272,9 @@ public class MatlabTool implements LPSolver {
         }
 
         lambdaValue = results.get(lpvariables[0]);
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: collecting output values done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: collecting output values done");
 
-        Logger.log(Logger.LEVEL_INFO, "MatlabTool: solving problem done");
+        logEngine.log(LogEngine.LEVEL_INFO, "MatlabTool: solving problem done");
         return results;
     }
 

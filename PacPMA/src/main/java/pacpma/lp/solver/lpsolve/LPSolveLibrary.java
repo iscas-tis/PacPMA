@@ -26,7 +26,7 @@ import com.sun.jna.NativeLibrary;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
 import pacpma.lp.OptimizationDirection;
@@ -48,6 +48,8 @@ import java.util.Map;
  *
  */
 public class LPSolveLibrary implements LPSolver {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     /** Encoding constant {@code false} of lp_solve. */
     private final static byte FALSE = 0;
     /** Encoding constant {@code true} of lp_solve. */
@@ -137,7 +139,7 @@ public class LPSolveLibrary implements LPSolver {
 
     @Override
     public void setVariables(List<LPVariable> listOfVariables) {
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: setting variables");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: setting variables");
         assert solverExpectedStep == LPSolverExecutionStep.SET_VARIABLES;
         solverExpectedStep = LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         
@@ -163,12 +165,12 @@ public class LPSolveLibrary implements LPSolver {
         }
         
         LpSolve.set_add_rowmode(lpsolveInstance, TRUE);
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: setting variables done");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: setting variables done");
     }
 
     @Override
     public void setObjectiveFunction(OptimizationDirection direction, Map<LPVariable, BigDecimal> terms) {
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: setting objective");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: setting objective");
         assert solverExpectedStep == LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         solverExpectedStep = LPSolverExecutionStep.ADD_CONSTRAINTS;
         
@@ -185,7 +187,7 @@ public class LPSolveLibrary implements LPSolver {
             LpSolve.set_minim(lpsolveInstance);
             break;
         }
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: setting objective done");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: setting objective done");
     }
 
     @Override
@@ -203,18 +205,18 @@ public class LPSolveLibrary implements LPSolver {
 
     @Override
     public Map<LPVariable, BigDecimal> solve() {
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: starting solving problem");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: starting solving problem");
         assert solverExpectedStep == LPSolverExecutionStep.ADD_CONSTRAINTS;
         solverExpectedStep = LPSolverExecutionStep.SOLVED;
        
         LpSolve.set_add_rowmode(lpsolveInstance, FALSE);
         
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: calling lpsolve");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: calling lpsolve");
         //solving the problem
         int solveStatus = LpSolve.solve(lpsolveInstance);
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: calling lpsolve done");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: calling lpsolve done");
         
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: collecting output values");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: collecting output values");
         Map<LPVariable, BigDecimal> results = null;
         //collecting results
         switch (solveStatus) {
@@ -230,11 +232,11 @@ public class LPSolveLibrary implements LPSolver {
             lambdaValue = results.get(lpvariables[0]);
             break;
         }
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: collecting output values done");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: collecting output values done");
         
         LpSolve.delete_lp(lpsolveInstance);
         
-        Logger.log(Logger.LEVEL_INFO, "LPSolveLibrary: solving problem done");
+        logEngine.log(LogEngine.LEVEL_INFO, "LPSolveLibrary: solving problem done");
         return results;
     }
 

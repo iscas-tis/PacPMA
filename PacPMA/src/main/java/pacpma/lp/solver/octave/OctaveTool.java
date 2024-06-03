@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 import pacpma.externaltool.ToolRunner;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
 import pacpma.lp.OptimizationDirection;
@@ -48,6 +48,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class OctaveTool implements LPSolver {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     private final static String FIELD_SEPARATOR = ":";
     private final static String ENTRY_SEPARATOR = ",";
     
@@ -90,7 +92,7 @@ public class OctaveTool implements LPSolver {
     
     @Override
     public void setVariables(List<LPVariable> listOfVariables) {
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: setting variables");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: setting variables");
         assert solverExpectedStep == LPSolverExecutionStep.SET_VARIABLES;
         solverExpectedStep = LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         
@@ -117,12 +119,12 @@ public class OctaveTool implements LPSolver {
         vartype.append("\";\n");
         lowerbound.append("];\n");
         upperbound.append("];\n");
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: setting variables done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: setting variables done");
     }
 
     @Override
     public void setObjectiveFunction(OptimizationDirection direction, Map<LPVariable, BigDecimal> terms) {
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: setting objective");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: setting objective");
         assert solverExpectedStep == LPSolverExecutionStep.SET_OBJECTIVE_FUNCTION;
         solverExpectedStep = LPSolverExecutionStep.ADD_CONSTRAINTS;
         
@@ -148,7 +150,7 @@ public class OctaveTool implements LPSolver {
             }
         }
         objectiveFunction.append("];\n");
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: setting objective done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: setting objective done");
     }
 
     @Override
@@ -187,11 +189,11 @@ public class OctaveTool implements LPSolver {
 
     @Override
     public Map<LPVariable, BigDecimal> solve() {
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: starting solving problem");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: starting solving problem");
         assert solverExpectedStep == LPSolverExecutionStep.ADD_CONSTRAINTS;
         solverExpectedStep = LPSolverExecutionStep.SOLVED;
         
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: creating LP problem file");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: creating LP problem file");
         
         File lpproblemMatrixATempFile = null;
         try {
@@ -265,9 +267,9 @@ public class OctaveTool implements LPSolver {
         } catch (IOException ioe) {
             return null;
         }
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: creating LP problem file done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: creating LP problem file done");
         
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: calling octave");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: calling octave");
         List<String> command = new LinkedList<>();
         command.add("octave");
         command.add("--no-gui");
@@ -278,7 +280,7 @@ public class OctaveTool implements LPSolver {
         command.add(lpproblemTempFile.getAbsolutePath());
         
         List<String> octaveOutput = new ToolRunner(command).run();
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: calling octave done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: calling octave done");
 
         // first line is "errnum:number"
         if (!"0".equals(octaveOutput.get(0).split(FIELD_SEPARATOR)[1])) {
@@ -293,7 +295,7 @@ public class OctaveTool implements LPSolver {
             return null;
         }
         
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: collecting output values");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: collecting output values");
         // third line is "opt_var:value,value,..."
         Map<LPVariable, BigDecimal> results = new HashMap<>();
 
@@ -303,9 +305,9 @@ public class OctaveTool implements LPSolver {
         }
 
         lambdaValue = results.get(lpvariables[0]);
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: collecting output values done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: collecting output values done");
 
-        Logger.log(Logger.LEVEL_INFO, "OctaveTool: solving problem done");
+        logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: solving problem done");
         return results;
     }
 

@@ -31,7 +31,7 @@ import java.util.Map;
 
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
@@ -45,6 +45,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class PrismSMCTool implements ModelChecker {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     private final static String RESULT = "Result: ";
     
     private String filePath = null;
@@ -101,7 +103,7 @@ public class PrismSMCTool implements ModelChecker {
 
     @Override
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: starting check procedure");
         if (filePath == null) {
             throw new IllegalStateException("Model file not specified");
         }
@@ -161,23 +163,23 @@ public class PrismSMCTool implements ModelChecker {
                 command.add(opt);
             }
             
-            Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: sample " + sb.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: sample " + sb.toString());
             if (options != null) {
                 options.forEach((o) -> command.add(o));
             }
             
-            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: calling actual solver");
+            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: calling actual solver");
             ToolRunner toolRunner = new ToolRunner(command); 
             List<String> output = toolRunner.run();
-            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: calling actual solver done");
-            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: exit value: " + toolRunner.getExitValue());
+            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: calling actual solver done");
+            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: exit value: " + toolRunner.getExitValue());
             if (output == null) {
                 throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
             }
-            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: extracting result");
+            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: extracting result");
             boolean hasFailed = true;
             for (String message : output) {
-                Logger.log(Logger.LEVEL_DEBUG, "PrismSMCTool: raw result: " + message);
+                logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: raw result: " + message);
                 if (message.startsWith(RESULT)) {
                     String result = message.split(" ")[1];
                     ModelCheckerResult modelCheckerResult;
@@ -200,9 +202,9 @@ public class PrismSMCTool implements ModelChecker {
             if (hasFailed) {
                 throw new RuntimeException("Failed execution; raw output:\n" + output);            
             }
-            Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: extracting result done");
+            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: extracting result done");
         }
-        Logger.log(Logger.LEVEL_INFO, "PrismSMCTool: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: check procedure done");
         return results;
     }
 

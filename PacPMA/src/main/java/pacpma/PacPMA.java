@@ -32,7 +32,7 @@ import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
 import pacpma.algebra.Polynomial;
 import pacpma.algebra.Variable;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
 import pacpma.lp.OptimizationDirection;
@@ -53,178 +53,183 @@ import pacpma.sample.RandomSampler;
  */
 public final class PacPMA {
     private final static String LAMBDA = "lambda";
-
+    
     public static void main(String[] args) {
         if (OptionsPacPMA.parseOptions(args)) {
-            Logger.setup(OptionsPacPMA.getLogLevel(), OptionsPacPMA.getLogFile());
-            
-            Random randomNumberGenerator = new Random(OptionsPacPMA.getSeed());
-            
-            List<Parameter> parameters = OptionsPacPMA.getParameters();
-            Variable.setVariables(parameters);
-            
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up polynomial");
-            Polynomial polynomial = new Polynomial(OptionsPacPMA.getDegree());
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up polynomial done");
-            
-            List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();
-            
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Generating samples");
-            if (OptionsPacPMA.useVerticesAsSamples()) {
-                samples.addAll(new BoundaryPointsGenerator().getSamples(parameters));
+            LogEngine logEngineInstance = OptionsPacPMA.getLogEngineInstance();
+            logEngineInstance.setup(OptionsPacPMA.getLogLevel(), OptionsPacPMA.getLogFile());
+            doAnalysis(logEngineInstance);
+            logEngineInstance.close();
+        }
+    }
+    
+    private static void doAnalysis(LogEngine logEngineInstance) {
+        Random randomNumberGenerator = new Random(OptionsPacPMA.getSeed());
+        
+        List<Parameter> parameters = OptionsPacPMA.getParameters();
+        Variable.setVariables(parameters);
+        
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up polynomial");
+        Polynomial polynomial = new Polynomial(OptionsPacPMA.getDegree());
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up polynomial done");
+        
+        List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();
+        
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Generating samples");
+        if (OptionsPacPMA.useVerticesAsSamples()) {
+            samples.addAll(new BoundaryPointsGenerator().getSamples(parameters));
+        }
+        
+        int randomSamples = OptionsPacPMA.getNumberSamples();
+        if (!OptionsPacPMA.useVerticesAsAdditionalSamples()) {
+            randomSamples = randomSamples - samples.size();
+        }
+        if (randomSamples > 0) {
+            samples.addAll(new RandomSampler(randomNumberGenerator, randomSamples).getSamples(parameters));
+        }
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Generating samples done");
+        
+        if (OptionsPacPMA.printStatistics()) {
+            System.out.println("Value of ε: " + OptionsPacPMA.getEpsilon());
+            System.out.println("Value of η: " + OptionsPacPMA.getEta());
+            System.out.println("λ is unbounded: " + OptionsPacPMA.isLambdaUnbounded());
+            if (!OptionsPacPMA.isLambdaUnbounded()) {
+                System.out.println("Value of λ: " + OptionsPacPMA.getLambda());
             }
-            
-            int randomSamples = OptionsPacPMA.getNumberSamples();
-            if (!OptionsPacPMA.useVerticesAsAdditionalSamples()) {
-                randomSamples = randomSamples - samples.size();
-            }
-            if (randomSamples > 0) {
-                samples.addAll(new RandomSampler(randomNumberGenerator, randomSamples).getSamples(parameters));
-            }
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Generating samples done");
-            
-            if (OptionsPacPMA.printStatistics()) {
-                System.out.println("Value of ε: " + OptionsPacPMA.getEpsilon());
-                System.out.println("Value of η: " + OptionsPacPMA.getEta());
-                System.out.println("λ is unbounded: " + OptionsPacPMA.isLambdaUnbounded());
-                if (!OptionsPacPMA.isLambdaUnbounded()) {
-                    System.out.println("Value of λ: " + OptionsPacPMA.getLambda());
-                }
-                System.out.println("Degree of the polynomial: " + OptionsPacPMA.getDegree());
-                System.out.println("Number of parameters: " + parameters.size());
-                System.out.println("Number of random samples: " + OptionsPacPMA.getNumberSamples());
-                System.out.println("Number of total samples: " + samples.size());
-                System.out.println("Number of polynomial coefficients: " + polynomial.getCoefficients().size());
-                return;
-            }
-            
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up LP solver");
-            List<String> lpVariableNames = new LinkedList<>();
-            lpVariableNames.add(LAMBDA);
-            lpVariableNames.addAll(polynomial.getCoefficients());
-            LPVariable.setVariables(lpVariableNames);
-            
-            final LPVariable LP_LAMBDA = LPVariable.asVariable(LAMBDA);
-            
-            List<LPVariable> lpVariables = LPVariable.getVariables();
-            
-            LPSolver lpSolver = OptionsPacPMA.getLPSolverInstance();
-            lpSolver.setVariables(lpVariables);
-            
-            Map<LPVariable, BigDecimal> lpObjectiveFunction = new HashMap<>();
-            lpVariables.forEach(lpvar -> lpObjectiveFunction.put(lpvar, BigDecimal.ZERO));
-            lpObjectiveFunction.put(LP_LAMBDA, BigDecimal.ONE);
-            lpSolver.setObjectiveFunction(OptimizationDirection.MIN, lpObjectiveFunction);
-            
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up model checker pool");
-            
-            int numberThreads = OptionsPacPMA.getModelCheckerThreads();
-            List<ModelCheckerInstance> modelCheckerInstances = new ArrayList<>(numberThreads);
-            List<Map<Integer, List<Constant>>> bucketParameterValues = new ArrayList<>(numberThreads);
-            for (int i = 0; i < numberThreads; i++) {
-                Map<Integer, List<Constant>> currentParameterValues = new HashMap<Integer, List<Constant>>();
-                bucketParameterValues.add(currentParameterValues);
+            System.out.println("Degree of the polynomial: " + OptionsPacPMA.getDegree());
+            System.out.println("Number of parameters: " + parameters.size());
+            System.out.println("Number of random samples: " + OptionsPacPMA.getNumberSamples());
+            System.out.println("Number of total samples: " + samples.size());
+            System.out.println("Number of polynomial coefficients: " + polynomial.getCoefficients().size());
+            return;
+        }
+        
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up LP solver");
+        List<String> lpVariableNames = new LinkedList<>();
+        lpVariableNames.add(LAMBDA);
+        lpVariableNames.addAll(polynomial.getCoefficients());
+        LPVariable.setVariables(lpVariableNames);
+        
+        final LPVariable LP_LAMBDA = LPVariable.asVariable(LAMBDA);
+        
+        List<LPVariable> lpVariables = LPVariable.getVariables();
+        
+        LPSolver lpSolver = OptionsPacPMA.getLPSolverInstance();
+        lpSolver.setVariables(lpVariables);
+        
+        Map<LPVariable, BigDecimal> lpObjectiveFunction = new HashMap<>();
+        lpVariables.forEach(lpvar -> lpObjectiveFunction.put(lpvar, BigDecimal.ZERO));
+        lpObjectiveFunction.put(LP_LAMBDA, BigDecimal.ONE);
+        lpSolver.setObjectiveFunction(OptimizationDirection.MIN, lpObjectiveFunction);
+        
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up model checker pool");
+        
+        int numberThreads = OptionsPacPMA.getModelCheckerThreads();
+        List<ModelCheckerInstance> modelCheckerInstances = new ArrayList<>(numberThreads);
+        List<Map<Integer, List<Constant>>> bucketParameterValues = new ArrayList<>(numberThreads);
+        for (int i = 0; i < numberThreads; i++) {
+            Map<Integer, List<Constant>> currentParameterValues = new HashMap<Integer, List<Constant>>();
+            bucketParameterValues.add(currentParameterValues);
 
-                ModelChecker currentModelChecker = OptionsPacPMA.getModelCheckerInstance();
-                currentModelChecker.setModelFile(OptionsPacPMA.getModelFile());
-                currentModelChecker.setModelType(OptionsPacPMA.getModelType());
-                currentModelChecker.setPropertyFormula(OptionsPacPMA.getPropertyFormula());
-                currentModelChecker.setConstants(OptionsPacPMA.getConstants());
-                currentModelChecker.setParameterValues(currentParameterValues);
-                currentModelChecker.setOptions(OptionsPacPMA.getModelCheckerOptions());
-                modelCheckerInstances.add(new ModelCheckerInstance(currentModelChecker));
-            }
-            int i = 0;
-            for (Map<Parameter, BigDecimal> sample : samples) {
-                List<Constant> modelcheckerParameterValues = new LinkedList<>();
-                sample.forEach((p,v) -> modelcheckerParameterValues.add(new Constant(p.getName(), v.toString())));
-                bucketParameterValues.get(i % numberThreads).put(i, modelcheckerParameterValues);
-                i++;
-            }
-            ModelCheckerParallel modelcheckerparallel = new ModelCheckerParallel(modelCheckerInstances);
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up model checker pool done");
-            
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling model checker");
-            Map<Integer, ModelCheckerResult> modelcheckerResults = modelcheckerparallel.check();
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling model checker done");
-            if (OptionsPacPMA.showRange()) {
-                Range range = modelcheckerparallel.getRange();
-                Logger.log(Logger.LEVEL_INFO, "PacPMA: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
-                System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
-            }
-            
-            if (OptionsPacPMA.useLogging()) {
-                Logger.saveToFile();
-            }
+            ModelChecker currentModelChecker = OptionsPacPMA.getModelCheckerInstance();
+            currentModelChecker.setModelFile(OptionsPacPMA.getModelFile());
+            currentModelChecker.setModelType(OptionsPacPMA.getModelType());
+            currentModelChecker.setPropertyFormula(OptionsPacPMA.getPropertyFormula());
+            currentModelChecker.setConstants(OptionsPacPMA.getConstants());
+            currentModelChecker.setParameterValues(currentParameterValues);
+            currentModelChecker.setOptions(OptionsPacPMA.getModelCheckerOptions());
+            modelCheckerInstances.add(new ModelCheckerInstance(currentModelChecker));
+        }
+        int i = 0;
+        for (Map<Parameter, BigDecimal> sample : samples) {
+            List<Constant> modelcheckerParameterValues = new LinkedList<>();
+            sample.forEach((p,v) -> modelcheckerParameterValues.add(new Constant(p.getName(), v.toString())));
+            bucketParameterValues.get(i % numberThreads).put(i, modelcheckerParameterValues);
+            i++;
+        }
+        ModelCheckerParallel modelcheckerparallel = new ModelCheckerParallel(modelCheckerInstances);
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up model checker pool done");
+        
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling model checker");
+        Map<Integer, ModelCheckerResult> modelcheckerResults = modelcheckerparallel.check();
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling model checker done");
+        if (OptionsPacPMA.showRange()) {
+            Range range = modelcheckerparallel.getRange();
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
+            System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
+        }
+        
+        if (OptionsPacPMA.useLogging()) {
+            logEngineInstance.saveToFile();
+        }
 
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Collecting model checker results");
-            for (Map<Integer, List<Constant>> samplesValues : bucketParameterValues) {
-                for (Integer identifier : samplesValues.keySet()) {
-                    Map<Parameter, BigDecimal> sample = samples.get(identifier);
-                    ModelCheckerResult modelcheckerResult = modelcheckerResults.get(identifier);
-                    if (modelcheckerResult == null) {
-                        System.out.println("No result computed");
-                        Logger.log(Logger.LEVEL_ERROR, "No result computed");
-                        if (OptionsPacPMA.useLogging()) {
-                            Logger.saveToFile();
-                        }
-                        return;
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Collecting model checker results");
+        for (Map<Integer, List<Constant>> samplesValues : bucketParameterValues) {
+            for (Integer identifier : samplesValues.keySet()) {
+                Map<Parameter, BigDecimal> sample = samples.get(identifier);
+                ModelCheckerResult modelcheckerResult = modelcheckerResults.get(identifier);
+                if (modelcheckerResult == null) {
+                    System.out.println("No result computed");
+                    logEngineInstance.log(LogEngine.LEVEL_ERROR, "No result computed");
+                    if (OptionsPacPMA.useLogging()) {
+                        logEngineInstance.saveToFile();
                     }
-                    if (modelcheckerResult.isInfinite()) {
-                        System.out.println("Value of λ: not computed");
-                        System.out.println("Appromixated function: infinity");
-                        Logger.log(Logger.LEVEL_INFO, "Value of λ: not computed");
-                        Logger.log(Logger.LEVEL_INFO, "Appromixated function: infinity");
-                        if (OptionsPacPMA.useLogging()) {
-                            Logger.saveToFile();
-                        }
-                        return;
+                    return;
+                }
+                if (modelcheckerResult.isInfinite()) {
+                    System.out.println("Value of λ: not computed");
+                    System.out.println("Appromixated function: infinity");
+                    logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: not computed");
+                    logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: infinity");
+                    if (OptionsPacPMA.useLogging()) {
+                        logEngineInstance.saveToFile();
                     }
-                    Map<Variable, BigDecimal> variablesValues = new HashMap<>();
-                    sample.forEach((p,v) -> variablesValues.put(Variable.asVariable(p), v));
-                    Map<String, BigDecimal> polynomialCoefficients = polynomial.evaluate(variablesValues);
-                    
-                    Map<LPVariable, BigDecimal> lpConstraint = new HashMap<>();
-                    polynomialCoefficients.forEach((coefficient, value) -> lpConstraint.put(LPVariable.asVariable(coefficient), value));
-                    lpConstraint.put(LP_LAMBDA, BigDecimal.ONE);
-                    lpSolver.addConstraint(lpConstraint, ConstraintComparison.GE, modelcheckerResult.getResult());
-                    lpConstraint.put(LP_LAMBDA, BigDecimal.ONE.negate());
-                    lpSolver.addConstraint(lpConstraint, ConstraintComparison.LE, modelcheckerResult.getResult());
+                    return;
                 }
+                Map<Variable, BigDecimal> variablesValues = new HashMap<>();
+                sample.forEach((p,v) -> variablesValues.put(Variable.asVariable(p), v));
+                Map<String, BigDecimal> polynomialCoefficients = polynomial.evaluate(variablesValues);
+                
+                Map<LPVariable, BigDecimal> lpConstraint = new HashMap<>();
+                polynomialCoefficients.forEach((coefficient, value) -> lpConstraint.put(LPVariable.asVariable(coefficient), value));
+                lpConstraint.put(LP_LAMBDA, BigDecimal.ONE);
+                lpSolver.addConstraint(lpConstraint, ConstraintComparison.GE, modelcheckerResult.getResult());
+                lpConstraint.put(LP_LAMBDA, BigDecimal.ONE.negate());
+                lpSolver.addConstraint(lpConstraint, ConstraintComparison.LE, modelcheckerResult.getResult());
             }
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Collecting model checker results done");
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Setting up LP solver done");
+        }
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Collecting model checker results done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up LP solver done");
 
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling LP solver");
-            Map<LPVariable, BigDecimal> lpSolution = lpSolver.solve();
-            Logger.log(Logger.LEVEL_INFO, "PacPMA: Calling LP solver done");
-            if (lpSolution == null) {
-                System.out.println("Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
-                Logger.log(Logger.LEVEL_INFO, "Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
-            } else {
-                String lambdaValue = lpSolver.getLambdaValue().toString();
-                Map<String, BigDecimal> solution = new HashMap<>();
-                lpSolution.forEach((variable, value) -> solution.put(variable.getName(), value));
-                String polynomialExpression = null;
-                switch (OptionsPacPMA.getFormatPolynomial()) {
-                case OptionsPacPMA.FORMAT_LATEX:
-                    polynomialExpression = polynomial.getLatexExpression(solution);
-                    break;
-                case OptionsPacPMA.FORMAT_MATH:
-                    polynomialExpression = polynomial.getMathExpression(solution);
-                    break;
-                case OptionsPacPMA.FORMAT_MATLAB:
-                    polynomialExpression = polynomial.getMatlabExpression(solution);
-                    break;
-                }
-                System.out.println("Value of λ: " + lambdaValue);
-                System.out.println("Appromixated function: " + polynomialExpression);
-                Logger.log(Logger.LEVEL_INFO, "Value of λ: " + lambdaValue);
-                Logger.log(Logger.LEVEL_INFO, "Appromixated function: " + polynomialExpression);
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling LP solver");
+        Map<LPVariable, BigDecimal> lpSolution = lpSolver.solve();
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling LP solver done");
+        if (lpSolution == null) {
+            System.out.println("Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
+        } else {
+            String lambdaValue = lpSolver.getLambdaValue().toString();
+            Map<String, BigDecimal> solution = new HashMap<>();
+            lpSolution.forEach((variable, value) -> solution.put(variable.getName(), value));
+            String polynomialExpression = null;
+            switch (OptionsPacPMA.getFormatPolynomial()) {
+            case OptionsPacPMA.FORMAT_LATEX:
+                polynomialExpression = polynomial.getLatexExpression(solution);
+                break;
+            case OptionsPacPMA.FORMAT_MATH:
+                polynomialExpression = polynomial.getMathExpression(solution);
+                break;
+            case OptionsPacPMA.FORMAT_MATLAB:
+                polynomialExpression = polynomial.getMatlabExpression(solution);
+                break;
             }
-            if (OptionsPacPMA.useLogging()) {
-                Logger.saveToFile();
-            }
+            System.out.println("Value of λ: " + lambdaValue);
+            System.out.println("Appromixated function: " + polynomialExpression);
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: " + lambdaValue);
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + polynomialExpression);
+        }
+        if (OptionsPacPMA.useLogging()) {
+            logEngineInstance.saveToFile();
         }
     }
 }

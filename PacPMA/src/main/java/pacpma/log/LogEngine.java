@@ -20,16 +20,11 @@
 
 package pacpma.log;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-
-import pacpma.options.OptionsPacPMA;
-
 /**
  * @author Andrea Turrini
  *
  */
-public class Logger {
+public interface LogEngine {
     public static final int LEVEL_NONE = 0;
     public static final int LEVEL_ERROR = LEVEL_NONE + 1;
     public static final int LEVEL_WARNING = LEVEL_ERROR + 1;
@@ -37,13 +32,6 @@ public class Logger {
     public static final int LEVEL_DEBUG = LEVEL_INFO + 1;
     public static final int LEVEL_ALL = LEVEL_DEBUG + 1;
 
-    private static final long startTime = System.currentTimeMillis();
-    
-    private static int logLevel;
-    private static String filePath;
-    
-    private static final StringBuilder log = new StringBuilder();
-    
     /**
      * Sets the level of the log messages to keep.
      * 
@@ -52,11 +40,7 @@ public class Logger {
      * @param filepath
      *            the file path where to store the logged messages
      */
-    public static void setup(int level, String filepath) {
-        logLevel = level;
-        filePath = filepath;
-        log(LEVEL_INFO, "Logger initialized");
-    }
+    public void setup(int level, String filepath);
     
     /**
      * Stores the message in the log, provided that its level is at least the one
@@ -67,23 +51,7 @@ public class Logger {
      * @param message
      *            the message
      */
-    public synchronized static void log(int level, String message) {
-        if (!OptionsPacPMA.useLogging()) {
-            return;
-        }
-        if (filePath == null) {
-            throw new IllegalStateException("Logger not initialized");
-        }
-        if (level <= logLevel) {
-            log.append("L")
-                .append(level)
-                .append(" ")
-                .append(System.currentTimeMillis() - startTime)
-                .append(": ")
-                .append(message)
-                .append("\n");
-        }
-    }
+    public void log(int level, String message);
     
     /**
      * Saves the logged messages into the provided file.
@@ -92,16 +60,13 @@ public class Logger {
      *            the file path
      * @return whether the log has been saved to file without raising errors
      */
-    public static boolean saveToFile() {
-        log(LEVEL_INFO, "Writing log to file");
-        if (filePath == null) {
-            throw new IllegalStateException("Logger not initialized");
-        }
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
-            bw.write(log.toString());
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
+    public boolean saveToFile();
+    
+    /**
+     * Closes the log.
+     * 
+     * The fate of messages sent to the log after closing it is undefined.
+     */
+    
+    public void close();
 }

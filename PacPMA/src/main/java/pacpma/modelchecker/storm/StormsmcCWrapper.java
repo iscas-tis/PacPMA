@@ -31,7 +31,7 @@ import java.util.Map;
 
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
-import pacpma.log.Logger;
+import pacpma.log.LogEngine;
 import pacpma.modelchecker.ModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
@@ -44,6 +44,8 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class StormsmcCWrapper implements ModelChecker {
+    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    
     private final static String RESULT_IDENTIFIER = "StormsmcCWrapper_RESULT";
     
     private final static String FIELD_SEPARATOR = ":";
@@ -102,7 +104,7 @@ public class StormsmcCWrapper implements ModelChecker {
 
     @Override
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: starting check procedure");
         if (filePath == null) {
             throw new IllegalStateException("Model file not specified");
         }
@@ -149,21 +151,21 @@ public class StormsmcCWrapper implements ModelChecker {
             final StringBuilder sbp = new StringBuilder();
             parameterValues.get(identifier).forEach(c -> appendConstant(sbp, c));
             sbp.insert(0, identifier + FIELD_SEPARATOR);
-            Logger.log(Logger.LEVEL_DEBUG, "StormsmcCWrapper: sample " + sbp.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormsmcCWrapper: sample " + sbp.toString());
             messages.add(sbp.toString());
         }
         
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: calling actual solver");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: calling actual solver");
         ToolRunner toolRunner = new ToolRunner(command, messages); 
         List<String> output = toolRunner.run();
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: calling actual solver done");
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: exit value: " + toolRunner.getExitValue());
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: calling actual solver done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: exit value: " + toolRunner.getExitValue());
         if (output == null) {
             throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
         }
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: extracting results");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: extracting results");
         for (String message: output) {
-            Logger.log(Logger.LEVEL_DEBUG, "StormsmcCWrapper: raw result: " + message);
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormsmcCWrapper: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
                 String result = messageSplit[2];
@@ -183,11 +185,11 @@ public class StormsmcCWrapper implements ModelChecker {
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
             }
         }
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: extracting results done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: extracting results done");
         if (results.size() != parameterValues.size()) {
             throw new RuntimeException("Incorrect number of results; raw output:\n" + output);            
         }
-        Logger.log(Logger.LEVEL_INFO, "StormsmcCWrapper: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: check procedure done");
         return results;
     }
 
