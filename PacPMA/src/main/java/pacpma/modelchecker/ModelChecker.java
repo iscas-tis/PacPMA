@@ -33,13 +33,6 @@ import pacpma.algebra.Constant;
  */
 public interface ModelChecker {
     
-    
-    /**
-     * Generates an instance of the class implementing {@link ModelChecker}
-     * @return an instance of this {@link ModelChecker}
-     */
-    public ModelChecker getInstance();
-
     /**
      * Sets the path to the model file to analyze.
      * 
@@ -47,7 +40,9 @@ public interface ModelChecker {
      *            the path to the model file
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setModelFile(String filePath);
+    default ModelChecker setModelFile(String filePath) {
+        return this;
+    };
 
     /**
      * Sets the model type, like prism or jani.
@@ -56,7 +51,9 @@ public interface ModelChecker {
      *            the model type
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setModelType(String modelType);
+    default ModelChecker setModelType(String modelType) {
+        return this;
+    };
 
     /**
      * Sets the quantitative property formula to verify. It must be a valid formula
@@ -66,7 +63,9 @@ public interface ModelChecker {
      *            the property formula
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setPropertyFormula(String propertyFormula);
+    default ModelChecker setPropertyFormula(String propertyFormula) {
+        return this;
+    };
 
     /**
      * Sets the constants of the models.
@@ -75,7 +74,9 @@ public interface ModelChecker {
      *            the list of constants
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setConstants(List<Constant> constants);
+    default ModelChecker setConstants(List<Constant> constants) {
+        return this;
+    };
 
     /**
      * Sets the parameter values to make the model checkable.
@@ -84,7 +85,9 @@ public interface ModelChecker {
      *            a mapping between some integer identifier and the corresponding list of constants
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues);
+    default ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
+        return this;
+    };
 
     /**
      * Additional options to be passed to the model checker.
@@ -93,7 +96,9 @@ public interface ModelChecker {
      *            the list of options
      * @return this model checker, for chaining methods invocations
      */
-    public ModelChecker setOptions(List<String> options);
+    default ModelChecker setOptions(List<String> options) {
+        return this;
+    };
 
     /**
      * Checks the given formula against the model instantiated with the provided
@@ -113,5 +118,7 @@ public interface ModelChecker {
      * 
      * @return an interval about the range of the values computed by the model checker
      */
-    public Range getRange();
+    default Range getRange() {
+        return null;
+    };
 }

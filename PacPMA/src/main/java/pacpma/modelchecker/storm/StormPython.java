@@ -61,11 +61,6 @@ public class StormPython implements ModelChecker {
     public StormPython() {}
     
     @Override
-    public ModelChecker getInstance() {
-        return new StormPython();
-    }
-    
-    @Override
     public ModelChecker setModelFile(String filePath) {
         this.filePath = filePath;
         return this;
@@ -92,12 +87,6 @@ public class StormPython implements ModelChecker {
     @Override
     public ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
         this.parameterValues = parameterValues;
-        return this;
-    }
-
-    @Override
-    public ModelChecker setOptions(List<String> options) {
-        // we don't expect options, for now
         return this;
     }
 

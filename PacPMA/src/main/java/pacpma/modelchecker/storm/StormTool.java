@@ -60,11 +60,6 @@ public class StormTool implements ModelChecker {
     public StormTool() {}
     
     @Override
-    public ModelChecker getInstance() {
-        return new StormTool();
-    }
-    
-    @Override
     public ModelChecker setModelFile(String filePath) {
         this.filePath = filePath;
         return this;

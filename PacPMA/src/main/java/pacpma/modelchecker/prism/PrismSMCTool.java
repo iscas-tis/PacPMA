@@ -61,11 +61,6 @@ public class PrismSMCTool implements ModelChecker {
     public PrismSMCTool() {}
     
     @Override
-    public ModelChecker getInstance() {
-        return new PrismSMCTool();
-    }
-    
-    @Override
     public ModelChecker setModelFile(String filePath) {
         this.filePath = filePath;
         return this;

@@ -62,11 +62,6 @@ public class StormsmcCWrapper implements ModelChecker {
     public StormsmcCWrapper() {}
     
     @Override
-    public ModelChecker getInstance() {
-        return new StormsmcCWrapper();
-    }
-    
-    @Override
     public ModelChecker setModelFile(String filePath) {
         this.filePath = filePath;
         return this;
