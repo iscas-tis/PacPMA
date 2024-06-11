@@ -158,7 +158,7 @@ public class PrismSMCTool implements ModelChecker {
                 command.add(opt);
             }
             
-            logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: sample " + sb.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: sample " + identifier + ":" + sb.toString());
             if (options != null) {
                 options.forEach((o) -> command.add(o));
             }
@@ -190,6 +190,7 @@ public class PrismSMCTool implements ModelChecker {
                             range.updateRange(modelCheckerResult);
                         }
                     }
+                    logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: computed result: " + identifier + ":" + modelCheckerResult);
                     results.put(identifier, modelCheckerResult);
                     hasFailed = false;
                 }
