@@ -38,7 +38,7 @@ import pacpma.modelchecker.Range;
 import pacpma.options.OptionsPacPMA;
 
 /**
- * Wrapper for the Storm model checker, interacting via Python.
+ * C wrapper for the Storm model checker working as a statistical model checker.
  * 
  * @author Andrea Turrini
  *
