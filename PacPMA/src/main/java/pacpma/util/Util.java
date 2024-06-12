@@ -169,8 +169,18 @@ public class Util {
      * @param c the constant to add
      */
     public static void appendConstant(StringBuilder sb, Constant c) {
+        appendConstant(sb, c, ",");
+    }
+    
+    /**
+     * Appends the given constant to the list of constants in the given string buffer
+     * @param sb the string buffer to fill
+     * @param c the constant to add
+     * @param separator the separator to use
+     */
+    public static void appendConstant(StringBuilder sb, Constant c, String separator) {
         if (sb.length() > 0) {
-            sb.append(",");
+            sb.append(separator);
         }
         sb.append(c.getName()).append("=").append(c.getValue());
     }
