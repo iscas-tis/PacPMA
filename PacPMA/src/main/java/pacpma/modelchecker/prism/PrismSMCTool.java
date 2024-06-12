@@ -136,7 +136,7 @@ public class PrismSMCTool implements ModelChecker {
             }
             command.add("-sim");
             command.add("-simmethod");
-            command.add("apmc");
+            command.add(OptionsPacPMA.getPrismsmcMethod());
             String opt = OptionsPacPMA.getPrismsmcApprox();
             if (opt != null) {
                 command.add("-simapprox");

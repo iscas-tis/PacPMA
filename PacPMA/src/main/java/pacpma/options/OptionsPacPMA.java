@@ -54,6 +54,7 @@ import pacpma.modelchecker.storm.StormCWrapper;
 import pacpma.modelchecker.storm.StormPython;
 import pacpma.modelchecker.storm.StormTool;
 import pacpma.modelchecker.storm.StormsmcCWrapper;
+import pacpma.modelchecker.synthetic.SyntheticOctave;
 import pacpma.util.Util;
 
 /**
@@ -118,6 +119,7 @@ public class OptionsPacPMA {
     public final static String MODELCHECKER_STORMC = "stormc";
     public final static String MODELCHECKER_STORMPY = "stormpy";
     public final static String MODELCHECKER_STORMSMCC = "stormsmcc";
+    public final static String MODELCHECKER_SYNTHETIC_OCTAVE = "synthetic-octave";
     private final static String DEFAULT_MODELCHECKER = MODELCHECKER_STORMC;
     private final static Collection<String> COLLECTION_MODELCHECKER = new HashSet<>();
     static {
@@ -126,6 +128,7 @@ public class OptionsPacPMA {
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMC);
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMPY);
         COLLECTION_MODELCHECKER.add(MODELCHECKER_STORMSMCC);
+        COLLECTION_MODELCHECKER.add(MODELCHECKER_SYNTHETIC_OCTAVE);
     }
     
     public final static String DEFAULT_MODELCHECKER_THREADS = "1";
@@ -139,6 +142,19 @@ public class OptionsPacPMA {
         COLLECTION_FORMAT.add(FORMAT_LATEX);
         COLLECTION_FORMAT.add(FORMAT_MATH);
         COLLECTION_FORMAT.add(FORMAT_MATLAB);
+    }
+    
+    public final static String PRISMSMC_METHOD_ACI = "aci";
+    public final static String PRISMSMC_METHOD_APMC = "apmc";
+    public final static String PRISMSMC_METHOD_CI = "ci";
+    public final static String PRISMSMC_METHOD_SPRT = "sprt";
+    private final static String DEFAULT_PRISMSMC_METHOD = PRISMSMC_METHOD_APMC;
+    private final static Collection<String> COLLECTION_PRISMSMC_METHOD = new HashSet<>();
+    static {
+        COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_ACI);
+        COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_APMC);
+        COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_CI);
+        COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_SPRT);
     }
 
     private final static String LAMBDA_INFINITE = "Infinity";
@@ -365,6 +381,14 @@ public class OptionsPacPMA {
                 .desc("single string representing a space-separated list of options to be passed to the model checker")
                 .build();
     
+    private final static Option option_prismsmcMethod = 
+            Option.builder()
+                .longOpt("prismsmc-method")
+                .argName(getAlternatives(COLLECTION_PRISMSMC_METHOD))
+                .hasArg()
+                .desc("smc engine to use; default: " + DEFAULT_PRISMSMC_METHOD)
+                .build();
+
     private final static Option option_prismsmcApprox = 
             Option.builder()
                 .longOpt("prismsmc-approx")
@@ -436,6 +460,7 @@ public class OptionsPacPMA {
         options.addOption(option_modelcheckerPath);
 //        options.addOption(option_modelcheckerOptions);
         options.addOption(option_modelcheckerThreads);
+        options.addOption(option_prismsmcMethod);
         options.addOption(option_prismsmcApprox);
         options.addOption(option_prismsmcConf);
         options.addOption(option_prismsmcPathlen);
@@ -473,6 +498,7 @@ public class OptionsPacPMA {
     private static String modelcheckerPath;
     private static List<String> modelcheckerOptions;
     private static int modelcheckerThreads;
+    private static String prismsmc_method;
     private static String prismsmc_approx = null;
     private static String prismsmc_conf = null;
     private static String prismsmc_pathlen = null;
@@ -687,6 +713,11 @@ public class OptionsPacPMA {
                     modelcheckerOptions = Arrays.asList(mcOptions);
                 } else {
                     modelcheckerOptions = new ArrayList<>(0);
+                }
+
+                prismsmc_method = commandline.getOptionValue(option_prismsmcMethod, DEFAULT_PRISMSMC_METHOD);
+                if (!COLLECTION_PRISMSMC_METHOD.contains(prismsmc_method)) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_prismsmcMethod));
                 }
 
                 if (commandline.hasOption(option_prismsmcApprox)) {
@@ -1005,6 +1036,8 @@ public class OptionsPacPMA {
             return new StormPython();
         case MODELCHECKER_STORMSMCC:
             return new StormsmcCWrapper();
+        case MODELCHECKER_SYNTHETIC_OCTAVE:
+            return new SyntheticOctave();
         default:
             throw new UnsupportedOperationException("Unexpected model checker");
         }
@@ -1031,6 +1064,13 @@ public class OptionsPacPMA {
         return modelcheckerThreads;
     }
    
+    /**
+     * @return the SMC engine to use with Prism
+     */
+    public static String getPrismsmcMethod() {
+        return prismsmc_method;
+    }
+
     /**
      * @return the approximation value to pass to Prism
      */
