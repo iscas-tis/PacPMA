@@ -282,6 +282,10 @@ public class OctaveTool implements LPSolver {
         List<String> octaveOutput = new ToolRunner(command).run();
         logEngine.log(LogEngine.LEVEL_INFO, "OctaveTool: calling octave done");
 
+        if (octaveOutput == null) {
+            // some error occurred during the LP problem solution
+            return null;            
+        }
         // first line is "errnum:number"
         if (!"0".equals(octaveOutput.get(0).split(FIELD_SEPARATOR)[1])) {
             // some error occurred during the LP problem solution
