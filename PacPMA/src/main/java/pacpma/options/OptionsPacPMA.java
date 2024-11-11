@@ -38,6 +38,9 @@ import org.apache.commons.cli.ParseException;
 
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
+import pacpma.algebra.TemplateFunction;
+import pacpma.algebra.function.ExpressionFunction;
+import pacpma.algebra.polynomial.Polynomial;
 import pacpma.log.OnfileLogEngine;
 import pacpma.log.LogEngine;
 import pacpma.log.NullLogEngine;
@@ -258,7 +261,15 @@ public class OptionsPacPMA {
                 .longOpt("degree")
                 .argName("integer")
                 .hasArg()
-                .desc("degree of the polynomial, with degree ≥ 0; default: " + DEFAULT_DEGREE)
+                .desc("degree of the polynomial, with degree ≥ 0; default: " + DEFAULT_DEGREE + ". Ignored when a template function is provided")
+                .build();
+    
+    private final static Option option_template = 
+            Option.builder("tf")
+                .longOpt("template-function")
+                .argName("terms")
+                .hasArg()
+                .desc("template function, given as the list of its terms")
                 .build();
     
     private final static Option option_lambda = 
@@ -445,6 +456,7 @@ public class OptionsPacPMA {
         options.addOption(option_boundary_points);
         options.addOption(option_seed);
         options.addOption(option_degree);
+        options.addOption(option_template);
         options.addOption(option_lambda);
         options.addOption(option_epsilon);
         options.addOption(option_eta);
@@ -484,6 +496,7 @@ public class OptionsPacPMA {
     private static int boundaryPoints;
     private static long seed;
     private static int degree;
+    private static TemplateFunction templateFunction;
     private static BigDecimal epsilon;
     private static BigDecimal eta;
     private static BigDecimal lambda;
@@ -786,6 +799,16 @@ public class OptionsPacPMA {
                 if (!COLLECTION_FORMAT.contains(format)) {
                     parsingErrors.add(getInvalidMessage(commandline, option_format));
                 }
+                
+                String tmpString = commandline.getOptionValue(option_template);
+                if (tmpString == null) {
+                    templateFunction = new Polynomial(degree);
+                } else {
+                     templateFunction = new ExpressionFunction(tmpString);
+                     if (!templateFunction.isValid()) {
+                         parsingErrors.add(getInvalidMessage(commandline, option_template));
+                     }
+                }
             }
         } catch (ParseException pe) {
             parsingErrors.add(pe.getMessage());
@@ -878,6 +901,13 @@ public class OptionsPacPMA {
         return degree;
     }
 
+    /**
+     * @return the template function
+     */
+    public static TemplateFunction getTemplateFunction() {
+        return templateFunction;
+    }
+    
     /**
      * @return the epsilon
      */

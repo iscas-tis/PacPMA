@@ -32,7 +32,6 @@ import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
 import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.Variable;
-import pacpma.algebra.polynomial.Polynomial;
 import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
@@ -71,7 +70,7 @@ public final class PacPMA {
         Variable.setVariables(parameters);
         
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function");
-        TemplateFunction templateFunction = new Polynomial(OptionsPacPMA.getDegree());
+        TemplateFunction templateFunction = OptionsPacPMA.getTemplateFunction();
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function done");
         
         List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();

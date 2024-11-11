@@ -31,6 +31,16 @@ import java.util.Map;
 public interface TemplateFunction {
     
     /**
+     * States whether the template function is a valid template function, like 
+     * using only defined variables and expressions.
+     * 
+     * @return whether the function is valid
+     */
+    default boolean isValid() {
+        return true;
+    }
+    
+    /**
      * Provides the list of coefficients of all terms in this template function.
      * 
      * @return the list of coefficients

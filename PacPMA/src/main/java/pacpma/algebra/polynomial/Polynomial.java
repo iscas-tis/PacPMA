@@ -71,6 +71,7 @@ public class Polynomial implements TemplateFunction {
         }
     }
     
+    @Override
     public List<String> getCoefficients() {
         List<String> coefficients = new LinkedList<>();
         monomials.values().forEach(
@@ -81,6 +82,7 @@ public class Polynomial implements TemplateFunction {
         return coefficients;
     }
 
+    @Override
     public Map<String, BigDecimal> evaluate(Map<Variable, BigDecimal> values) {
         Map<String, BigDecimal> coefficients = new HashMap<>();
         monomials.values().forEach(
@@ -91,6 +93,7 @@ public class Polynomial implements TemplateFunction {
         return coefficients;
     }
     
+    @Override
     public String getLatexExpression(Map<String, BigDecimal> coefficientValues) {
         StringBuilder sb = new StringBuilder();
         sb.append(coefficientValues.get(Monomial.getZeroDegreeMonomial().getNamedCoefficient()));
@@ -109,6 +112,7 @@ public class Polynomial implements TemplateFunction {
         return sb.toString();
     }
     
+    @Override
     public String getMathExpression(Map<String, BigDecimal> coefficientValues) {
         StringBuilder sb = new StringBuilder();
         sb.append(coefficientValues.get(Monomial.getZeroDegreeMonomial().getNamedCoefficient()));
@@ -127,6 +131,7 @@ public class Polynomial implements TemplateFunction {
         return sb.toString();
     }
     
+    @Override
     public String getMatlabExpression(Map<String, BigDecimal> coefficientValues) {
         StringBuilder sb = new StringBuilder();
         sb.append(coefficientValues.get(Monomial.getZeroDegreeMonomial().getNamedCoefficient()));
