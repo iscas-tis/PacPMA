@@ -496,7 +496,8 @@ public class OptionsPacPMA {
     private static int boundaryPoints;
     private static long seed;
     private static int degree;
-    private static TemplateFunction templateFunction;
+    private static String templateFunctionString;
+    private static TemplateFunction templateFunction = null;
     private static BigDecimal epsilon;
     private static BigDecimal eta;
     private static BigDecimal lambda;
@@ -800,15 +801,7 @@ public class OptionsPacPMA {
                     parsingErrors.add(getInvalidMessage(commandline, option_format));
                 }
                 
-                String tmpString = commandline.getOptionValue(option_template);
-                if (tmpString == null) {
-                    templateFunction = new Polynomial(degree);
-                } else {
-                     templateFunction = new ExpressionFunction(tmpString);
-                     if (!templateFunction.isValid()) {
-                         parsingErrors.add(getInvalidMessage(commandline, option_template));
-                     }
-                }
+                templateFunctionString = commandline.getOptionValue(option_template);
             }
         } catch (ParseException pe) {
             parsingErrors.add(pe.getMessage());
@@ -905,6 +898,13 @@ public class OptionsPacPMA {
      * @return the template function
      */
     public static TemplateFunction getTemplateFunction() {
+        if (templateFunction == null) {
+            if (templateFunctionString == null) {
+                templateFunction = new Polynomial(degree);
+            } else {
+                 templateFunction = new ExpressionFunction(templateFunctionString);
+            }
+        }
         return templateFunction;
     }
     
