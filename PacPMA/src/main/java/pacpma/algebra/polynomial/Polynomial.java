@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.algebra;
+package pacpma.algebra.polynomial;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import pacpma.algebra.Variable;
 
 /**
  * A class representing a polynomial.

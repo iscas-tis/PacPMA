@@ -19,8 +19,8 @@
  *****************************************************************************/
 
 /**
- * This package provides an implementation of the template functions.
+ * This package provides an implementation of the parametric polynomials.
  * 
  * @author Andrea Turrini
  */
-package pacpma.algebra;
+package pacpma.algebra.polynomial;

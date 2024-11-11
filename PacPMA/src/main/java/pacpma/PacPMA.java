@@ -30,8 +30,8 @@ import java.util.Random;
 
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
-import pacpma.algebra.Polynomial;
 import pacpma.algebra.Variable;
+import pacpma.algebra.polynomial.Polynomial;
 import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;

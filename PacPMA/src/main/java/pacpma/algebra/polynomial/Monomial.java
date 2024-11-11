@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.algebra;
+package pacpma.algebra.polynomial;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import pacpma.algebra.Variable;
 
 /**
  * A class representing a monomial, with variables taken from

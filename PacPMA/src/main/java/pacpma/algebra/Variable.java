@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Class representing the variables to be used in the polynomial
+ * Class representing the variables to be used in the template function
  * 
  * @author Andrea Turrini
  *
@@ -55,7 +55,7 @@ public class Variable {
         return variables.get(parameter.getName());
     }
 
-    static List<Variable> getVariables() {
+    public static List<Variable> getVariables() {
         return orderedVariables;
     }
 
