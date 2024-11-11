@@ -72,6 +72,10 @@ public final class PacPMA {
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function");
         TemplateFunction templateFunction = OptionsPacPMA.getTemplateFunction();
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function done");
+        if (!templateFunction.isValid()) {
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "PacPMA: template function not valid");
+            return;
+        }
         
         List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();
         
