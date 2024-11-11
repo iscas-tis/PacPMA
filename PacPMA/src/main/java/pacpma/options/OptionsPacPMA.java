@@ -426,7 +426,7 @@ public class OptionsPacPMA {
                 .longOpt("format")
                 .argName(getAlternatives(COLLECTION_FORMAT))
                 .hasArg()
-                .desc("print format for the generated polynomial; default: " + DEFAULT_FORMAT)
+                .desc("print format for the generated approximation function; default: " + DEFAULT_FORMAT)
                 .build();
     
     static {
@@ -1100,7 +1100,7 @@ public class OptionsPacPMA {
     }
 
     /**
-     * @return how to print the polynomial
+     * @return how to print the approximated function
      */
     public static String getFunctionFormat() {
         return format;
