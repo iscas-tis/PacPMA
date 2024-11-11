@@ -30,6 +30,7 @@ import java.util.Random;
 
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
+import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.Variable;
 import pacpma.algebra.polynomial.Polynomial;
 import pacpma.log.LogEngine;
@@ -69,9 +70,9 @@ public final class PacPMA {
         List<Parameter> parameters = OptionsPacPMA.getParameters();
         Variable.setVariables(parameters);
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up polynomial");
-        Polynomial polynomial = new Polynomial(OptionsPacPMA.getDegree());
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up polynomial done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function");
+        TemplateFunction templateFunction = new Polynomial(OptionsPacPMA.getDegree());
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function done");
         
         List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();
         
@@ -100,14 +101,14 @@ public final class PacPMA {
             System.out.println("Number of parameters: " + parameters.size());
             System.out.println("Number of random samples: " + OptionsPacPMA.getNumberSamples());
             System.out.println("Number of total samples: " + samples.size());
-            System.out.println("Number of polynomial coefficients: " + polynomial.getCoefficients().size());
+            System.out.println("Number of template function coefficients: " + templateFunction.getCoefficients().size());
             return;
         }
         
         logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up LP solver");
         List<String> lpVariableNames = new LinkedList<>();
         lpVariableNames.add(LAMBDA);
-        lpVariableNames.addAll(polynomial.getCoefficients());
+        lpVariableNames.addAll(templateFunction.getCoefficients());
         LPVariable.setVariables(lpVariableNames);
         
         final LPVariable LP_LAMBDA = LPVariable.asVariable(LAMBDA);
@@ -188,10 +189,10 @@ public final class PacPMA {
                 }
                 Map<Variable, BigDecimal> variablesValues = new HashMap<>();
                 sample.forEach((p,v) -> variablesValues.put(Variable.asVariable(p), v));
-                Map<String, BigDecimal> polynomialCoefficients = polynomial.evaluate(variablesValues);
+                Map<String, BigDecimal> templateCoefficients = templateFunction.evaluate(variablesValues);
                 
                 Map<LPVariable, BigDecimal> lpConstraint = new HashMap<>();
-                polynomialCoefficients.forEach((coefficient, value) -> lpConstraint.put(LPVariable.asVariable(coefficient), value));
+                templateCoefficients.forEach((coefficient, value) -> lpConstraint.put(LPVariable.asVariable(coefficient), value));
                 lpConstraint.put(LP_LAMBDA, BigDecimal.ONE);
                 lpSolver.addConstraint(lpConstraint, ConstraintComparison.GE, modelcheckerResult.getResult());
                 lpConstraint.put(LP_LAMBDA, BigDecimal.ONE.negate());
@@ -211,22 +212,22 @@ public final class PacPMA {
             String lambdaValue = lpSolver.getLambdaValue().toString();
             Map<String, BigDecimal> solution = new HashMap<>();
             lpSolution.forEach((variable, value) -> solution.put(variable.getName(), value));
-            String polynomialExpression = null;
-            switch (OptionsPacPMA.getFormatPolynomial()) {
+            String templateExpression = null;
+            switch (OptionsPacPMA.getFunctionFormat()) {
             case OptionsPacPMA.FORMAT_LATEX:
-                polynomialExpression = polynomial.getLatexExpression(solution);
+                templateExpression = templateFunction.getLatexExpression(solution);
                 break;
             case OptionsPacPMA.FORMAT_MATH:
-                polynomialExpression = polynomial.getMathExpression(solution);
+                templateExpression = templateFunction.getMathExpression(solution);
                 break;
             case OptionsPacPMA.FORMAT_MATLAB:
-                polynomialExpression = polynomial.getMatlabExpression(solution);
+                templateExpression = templateFunction.getMatlabExpression(solution);
                 break;
             }
             System.out.println("Value of λ: " + lambdaValue);
-            System.out.println("Appromixated function: " + polynomialExpression);
+            System.out.println("Appromixated function: " + templateExpression);
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: " + lambdaValue);
-            logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + polynomialExpression);
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + templateExpression);
         }
         if (OptionsPacPMA.useLogging()) {
             logEngineInstance.flush();

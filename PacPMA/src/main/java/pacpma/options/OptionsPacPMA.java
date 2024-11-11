@@ -1102,7 +1102,7 @@ public class OptionsPacPMA {
     /**
      * @return how to print the polynomial
      */
-    public static String getFormatPolynomial() {
+    public static String getFunctionFormat() {
         return format;
     }
 
