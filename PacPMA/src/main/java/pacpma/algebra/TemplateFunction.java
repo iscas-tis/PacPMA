@@ -76,7 +76,7 @@ public interface TemplateFunction {
      * @param coefficientValues
      *            the values associated to the coefficients
      *            {@link TemplateFunction#getCoefficient()}
-     * @return a LaTeX expression representing this template function
+     * @return a mathematical expression representing this template function
      */
     String getMathExpression(Map<String, BigDecimal> coefficientValues);
     
@@ -87,7 +87,7 @@ public interface TemplateFunction {
      * @param coefficientValues
      *            the values associated to the coefficients
      *            {@link TemplateFunction#getCoefficient()}
-     * @return a LaTeX expression representing this template function
+     * @return a MATLAB expression representing this template function
      */
     String getMatlabExpression(Map<String, BigDecimal> coefficientValues);
 }
