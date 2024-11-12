@@ -26,6 +26,7 @@ import java.util.Map;
 
 import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.Variable;
+import pacpma.algebra.function.parser.ExpressionParser;
 
 /**
  * @author Andrea Turrini
@@ -40,7 +41,8 @@ public class ExpressionFunction implements TemplateFunction {
      *  the list of expressions for this expression function
      */
     public ExpressionFunction(String termsList) {
-        terms = null;
+        ExpressionParser parser = new ExpressionParser(termsList); 
+        terms = parser.parseTerms();
     }
 
     @Override
@@ -77,5 +79,4 @@ public class ExpressionFunction implements TemplateFunction {
         // TODO Auto-generated method stub
         return null;
     }
-
 }
