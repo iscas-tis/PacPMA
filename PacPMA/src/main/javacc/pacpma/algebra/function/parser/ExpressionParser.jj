@@ -1,0 +1,104 @@
+options
+{
+  LOOKAHEAD = 1;
+  STATIC = false;
+  UNICODE_INPUT = true;
+}
+
+PARSER_BEGIN(ExpressionParser)
+package pacpma.algebra.function.parser;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import pacpma.algebra.function.expression.Expression;
+import pacpma.algebra.function.expression.ExpressionNumber;
+import pacpma.algebra.function.expression.ExpressionTerm;
+import pacpma.algebra.function.expression.ExpressionVariable;
+
+public final class ExpressionParser {
+    public List<ExpressionTerm> parseTerms() {
+        try {
+            return actualParser();
+        } catch (ParseException pe) {
+            return null;
+        }
+    } 
+}
+PARSER_END(ExpressionParser)
+
+SKIP:
+{
+    " "
+|   "\t"
+}
+
+TOKEN:
+{
+    < CEIL : "ceil" >
+|   < COS : "cos" >
+|   < COSH : "cosh" >
+|   < EXP : "exp" >
+|   < FLOOR : "floor" >
+|   < LOG : "log" >
+|   < MOD : "mod" >
+|   < POW : "pow" >
+|   < ROUND : "round" >
+|   < SIN : "sin" >
+|   < SINH : "sinh" >
+|   < SQRT : "sqrt" >
+|   < TAN : "tan" >
+|   < TANH : "tanh" >
+|   < DIVIDE : "/" >
+|   < MINUS : "-" >
+|   < PLUS : "+" >
+|   < TIMES : "*" >
+|   < LBRACKET  : "[" >
+|   < RBRACKET  : "]" >
+|   < LPAR : "(" >
+|   < RPAR : ")" >
+|   < LCURL : "{" >
+|   < RCURL : "}" >
+|   < COMMA : "," >
+|   < IDENTIFIER : [ "A"-"Z","a"-"z","_" ] ( [ "A"-"Z","a"-"z","_","0"-"9" ] )* >
+|   < NUM_INT : (["1"-"9"](["0"-"9"])*)|("0") >
+|   < NUM_REAL : (["0"-"9"])+(".")?(["0"-"9"])+(["e","E"](["-","+"])?(["0"-"9"])+)? >
+}
+
+TOKEN :
+{
+        < UNEXPECTED_CHAR : ~[] >
+}
+
+private List<ExpressionTerm > actualParser() :
+{
+    List<ExpressionTerm> terms = new ArrayList<>();
+    Expression e;
+}
+{
+    e = parseExpression() { terms.add(new ExpressionTerm(e)); }
+    (		< COMMA >
+		e = parseExpression() { terms.add(new ExpressionTerm(e)); }
+    )*
+    < EOF >
+    { return terms; }
+}
+
+private Expression parseExpression() :
+{
+    Expression e;
+    Token t;
+}
+{
+    (
+        t = < IDENTIFIER >
+        { e = new ExpressionVariable(t.toString()); }
+    |
+        t = < NUM_INT >
+        { e = new ExpressionConstant(t.toString()); } 
+    |
+        t = < NUM_REAL >
+        { e = new ExpressionConstant(t.toString()); } 
+    )
+    { return e; }
+}
