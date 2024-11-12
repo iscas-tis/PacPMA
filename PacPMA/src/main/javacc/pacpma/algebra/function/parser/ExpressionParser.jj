@@ -95,10 +95,10 @@ private Expression parseExpression() :
         { e = new ExpressionVariable(t.toString()); }
     |
         t = < NUM_INT >
-        { e = new ExpressionConstant(t.toString()); } 
+        { e = new ExpressionNumber(t.toString()); } 
     |
         t = < NUM_REAL >
-        { e = new ExpressionConstant(t.toString()); } 
+        { e = new ExpressionNumber(t.toString()); } 
     )
     { return e; }
 }

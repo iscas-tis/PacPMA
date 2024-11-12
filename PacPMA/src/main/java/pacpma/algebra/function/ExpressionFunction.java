@@ -20,12 +20,14 @@
 
 package pacpma.algebra.function;
 
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.Variable;
+import pacpma.algebra.function.expression.ExpressionTerm;
 import pacpma.algebra.function.parser.ExpressionParser;
 
 /**
@@ -33,7 +35,7 @@ import pacpma.algebra.function.parser.ExpressionParser;
  *
  */
 public class ExpressionFunction implements TemplateFunction {
-    private List<String> terms;
+    private List<ExpressionTerm> terms;
     
     /**
      * Parses the expressions in the list as function terms.
@@ -41,7 +43,7 @@ public class ExpressionFunction implements TemplateFunction {
      *  the list of expressions for this expression function
      */
     public ExpressionFunction(String termsList) {
-        ExpressionParser parser = new ExpressionParser(termsList); 
+        ExpressionParser parser = new ExpressionParser(new StringReader(termsList)); 
         terms = parser.parseTerms();
     }
 
