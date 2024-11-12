@@ -1,7 +1,7 @@
 /****************************************************************************
 
     PacPMA - the PAC-based Parametric Model Analyzer
-    Copyright (C) 2023
+    Copyright (C) 2024
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
