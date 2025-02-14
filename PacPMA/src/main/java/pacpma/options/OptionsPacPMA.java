@@ -41,6 +41,8 @@ import pacpma.algebra.Parameter;
 import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.function.ExpressionFunction;
 import pacpma.algebra.polynomial.Polynomial;
+import pacpma.approach.Approach;
+import pacpma.approach.ScenarioApproach;
 import pacpma.log.OnfileLogEngine;
 import pacpma.log.LogEngine;
 import pacpma.log.NullLogEngine;
@@ -91,6 +93,13 @@ public class OptionsPacPMA {
     static {
         COLLECTION_MODELTYPE.add(MODELTYPE_PRISM);
         COLLECTION_MODELTYPE.add(MODELTYPE_JANI);
+    }
+    
+    public final static String APPROACH_SCENARIO = "scenario";
+    private final static String DEFAULT_APPROACH = APPROACH_SCENARIO;
+    private final static Collection<String> COLLECTION_APPROACH = new HashSet<>();
+    static {
+        COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
@@ -306,6 +315,14 @@ public class OptionsPacPMA {
                 .desc("input file with the model to analyze")
                 .build();
 
+    private final static Option option_approach = 
+            Option.builder("a")
+                .longOpt("approach")
+                .argName(getAlternatives(COLLECTION_APPROACH))
+                .hasArg()
+                .desc("analysis approach; default: " + DEFAULT_APPROACH)
+                .build();
+    
     private final static Option option_modelType = 
             Option.builder("t")
                 .longOpt("model-type")
@@ -470,6 +487,7 @@ public class OptionsPacPMA {
         options.addOption(option_lambda);
         options.addOption(option_epsilon);
         options.addOption(option_eta);
+        options.addOption(option_approach);
         options.addOption(option_modelFile);
         options.addOption(option_modelType);
         options.addOption(option_property);
@@ -513,6 +531,7 @@ public class OptionsPacPMA {
     private static BigDecimal eta;
     private static BigDecimal lambda;
     private static boolean lambdaInfinite;
+    private static String approach;
     private static String modelFile;
     private static String modelType;
     private static String property;
@@ -568,6 +587,11 @@ public class OptionsPacPMA {
                     parsingErrors.add(getInvalidMessage(commandline, option_logEngine));
                 }
 
+                approach = commandline.getOptionValue(option_approach, DEFAULT_APPROACH);
+                if (!COLLECTION_APPROACH.contains(approach)) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_approach));
+                }
+                
                 try {
                     tmpInt = Integer.valueOf(commandline.getOptionValue(option_logLevel, DEFAULT_LOGLEVEL));
                     if (tmpInt < 0) {
@@ -1005,6 +1029,22 @@ public class OptionsPacPMA {
      */
     public static String getLPSolver() {
         return lpsolver;
+    }
+    
+    /**
+     * Generates and returns a new approach solver specified as option at command line.
+     * 
+     * @param logEngineInstance the {@link LogEngine} instance to be used for logging.
+     * 
+     * @return an instance of the chosen LP solver
+     */
+    public static Approach getAppraochInstance(LogEngine logEngineInstance) {
+        switch (approach) {
+        case APPROACH_SCENARIO:
+            return new ScenarioApproach(logEngineInstance);
+        default:
+            throw new UnsupportedOperationException("Unexpected approach");
+        }
     }
     
     /**

@@ -1,7 +1,7 @@
 /****************************************************************************
 
-    PacPMA - the PAC-based Parametric Model Analyzer
-    Copyright (C) 2023
+    PACModel - a PAC-based model checker
+    Copyright (C) 2025
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -18,25 +18,8 @@
 
  *****************************************************************************/
 
-package pacpma;
-
-import pacpma.approach.Approach;
-import pacpma.log.LogEngine;
-import pacpma.options.OptionsPacPMA;
-
 /**
- * PAC model main class
- * 
  * @author Andrea Turrini
+ *
  */
-public final class PacPMA {
-    public static void main(String[] args) {
-        if (OptionsPacPMA.parseOptions(args)) {
-            LogEngine logEngineInstance = OptionsPacPMA.getLogEngineInstance();
-            logEngineInstance.setup(OptionsPacPMA.getLogLevel(), OptionsPacPMA.getLogFile());
-            Approach approach = OptionsPacPMA.getAppraochInstance(logEngineInstance);
-            approach.doAnalysis();
-            logEngineInstance.close();
-        }
-    }
-}
+package pacpma.approach;
