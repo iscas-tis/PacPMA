@@ -12,8 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pacpma.algebra.function.expression.Expression;
-import pacpma.algebra.function.expression.ExpressionSqrt;
+import pacpma.algebra.function.expression.ExpressionCeil;
 import pacpma.algebra.function.expression.ExpressionNumber;
+import pacpma.algebra.function.expression.ExpressionSqrt;
 import pacpma.algebra.function.expression.ExpressionTerm;
 import pacpma.algebra.function.expression.ExpressionVariable;
 
@@ -86,10 +87,10 @@ private List<ExpressionTerm > actualParser() :
 private Expression parseExpression() :
 {
     Expression e;
-    Token t;
 }
 {
-    parseBasicExpression()
+    e = parseBasicExpression()
+    { return e; }
 }
 
 private Expression parseBasicExpression() :
@@ -102,6 +103,12 @@ private Expression parseBasicExpression() :
         < LPAR >
         e = parseExpression()
         < RPAR >
+    |
+        < SQRT >
+        < LPAR >
+        e = parseExpression()
+        < RPAR >
+        { e = new ExpressionSqrt(e); }
     |
         < CEIL >
         < LPAR >

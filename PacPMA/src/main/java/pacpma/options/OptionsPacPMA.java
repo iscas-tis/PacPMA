@@ -159,6 +159,8 @@ public class OptionsPacPMA {
         COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_CI);
         COLLECTION_PRISMSMC_METHOD.add(PRISMSMC_METHOD_SPRT);
     }
+    
+    private final static String DEFAULT_EXPRESSION_PRECISION = "10";
 
     private final static String LAMBDA_INFINITE = "Infinity";
 
@@ -336,6 +338,14 @@ public class OptionsPacPMA {
                 .desc("intervals for the parameters, with l < u being decimal numbers")
                 .build();
     
+    private final static Option option_expression_precision = 
+            Option.builder()
+                .longOpt("expression-precision")
+                .argName("int")
+                .hasArg()
+                .desc("bit-size precision ≥ 0 when evaluating expressions possibly requiring infinitely many bits; default: " + DEFAULT_EXPRESSION_PRECISION)
+                .build();
+    
     private final static Option option_lpsolver = 
             Option.builder("l")
                 .longOpt("lpsolver")
@@ -468,6 +478,7 @@ public class OptionsPacPMA {
         options.addOption(option_lpsolver);
         options.addOption(option_lpsolver_precision);
         options.addOption(option_lpsolver_scaling_factor);
+        options.addOption(option_expression_precision);
         options.addOption(option_modelchecker);
         options.addOption(option_modelcheckerPath);
 //        options.addOption(option_modelcheckerOptions);
@@ -508,6 +519,7 @@ public class OptionsPacPMA {
     private static String lpsolver;
     private static BigDecimal lpsolverPrecision;
     private static BigDecimal lpsolverFactor;
+    private static int expressionPrecision;
     private static String modelchecker;
     private static String modelcheckerPath;
     private static List<String> modelcheckerOptions;
@@ -710,6 +722,16 @@ public class OptionsPacPMA {
                     parsingErrors.add(getInvalidMessage(commandline, option_lpsolver_scaling_factor));
                 }
                 lpsolverFactor = BigDecimal.TEN.pow(tmpInt);
+
+                try {
+                    tmpInt = Integer.valueOf(commandline.getOptionValue(option_expression_precision, DEFAULT_EXPRESSION_PRECISION));
+                    if (tmpInt < 0) {
+                        parsingErrors.add("The option " + option_expression_precision.getLongOpt() + " must be at least 0");
+                    }
+                } catch (NumberFormatException nfe) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_expression_precision));
+                }
+                expressionPrecision = tmpInt;
 
                 modelchecker = commandline.getOptionValue(option_modelchecker, DEFAULT_MODELCHECKER);
                 if (!COLLECTION_MODELCHECKER.contains(modelchecker)) {
@@ -969,6 +991,13 @@ public class OptionsPacPMA {
      */
     public static List<Parameter> getParameters() {
         return parameters;
+    }
+
+    /**
+     * @return the expressionPrecision
+     */
+    public static int getExpressionPrecision() {
+        return expressionPrecision;
     }
 
     /**
