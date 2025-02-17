@@ -358,6 +358,38 @@ public class OptionsPacPMA {
                 .desc("intervals for the parameters, with l < u being decimal numbers")
                 .build();
     
+    private final static Option option_direct_stopping_value_absolute = 
+            Option.builder()
+                .longOpt("direct-stopping-value-absolute")
+                .argName("real")
+                .hasArg()
+                .desc("DIRECT stopping threshold based on the absolute variation of the computed value between two successive optimization steps")
+                .build();
+    
+    private final static Option option_direct_stopping_value_relative = 
+            Option.builder()
+                .longOpt("direct-stopping-value-absolute")
+                .argName("real")
+                .hasArg()
+                .desc("DIRECT stopping threshold based on the relative variation of the computed value between two successive optimization steps")
+                .build();
+    
+    private final static Option option_direct_stopping_parameters_absolute = 
+            Option.builder()
+                .longOpt("direct-stopping-parameters-absolute")
+                .argName("real")
+                .hasArg()
+                .desc("DIRECT stopping threshold based on the absolute variation of the L2 norm of the parameters between two successive optimization steps")
+                .build();
+    
+    private final static Option option_direct_stopping_parameters_relative = 
+            Option.builder()
+                .longOpt("direct-stopping-parameters-absolute")
+                .argName("real")
+                .hasArg()
+                .desc("DIRECT stopping threshold based on the relative variation of the L2 norm of the parameters between two successive optimization steps")
+                .build();
+    
     private final static Option option_expression_precision = 
             Option.builder()
                 .longOpt("expression-precision")
@@ -496,6 +528,10 @@ public class OptionsPacPMA {
         options.addOption(option_property);
         options.addOption(option_consts);
         options.addOption(option_params);
+        options.addOption(option_direct_stopping_value_absolute);
+        options.addOption(option_direct_stopping_value_relative);
+        options.addOption(option_direct_stopping_parameters_absolute);
+        options.addOption(option_direct_stopping_parameters_relative);
         options.addOption(option_lpsolver);
         options.addOption(option_lpsolver_precision);
         options.addOption(option_lpsolver_scaling_factor);
@@ -542,6 +578,10 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverPrecision;
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
+    private static Double directStoppingValueAbsolute = null;
+    private static Double directStoppingValueRelative = null;
+    private static Double directStoppingParametersAbsolute = null;
+    private static Double directStoppingParametersRelative = null;
     private static String modelchecker;
     private static String modelcheckerPath;
     private static List<String> modelcheckerOptions;
@@ -661,6 +701,38 @@ public class OptionsPacPMA {
                         }
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_lambda));
+                    }
+                }
+                
+                if (commandline.hasOption(option_direct_stopping_value_absolute)) {
+                    try {
+                        directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute));
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_absolute));
+                    }
+                }
+
+                if (commandline.hasOption(option_direct_stopping_value_relative)) {
+                    try {
+                        directStoppingValueRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_relative));
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_relative));
+                    }
+                }
+
+                if (commandline.hasOption(option_direct_stopping_parameters_absolute)) {
+                    try {
+                        directStoppingParametersAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_absolute));
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_absolute));
+                    }
+                }
+
+                if (commandline.hasOption(option_direct_stopping_parameters_relative)) {
+                    try {
+                        directStoppingParametersRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_relative));
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_relative));
                     }
                 }
 
@@ -986,6 +1058,34 @@ public class OptionsPacPMA {
     }
 
     /**
+     * @return the DIRECT stopping threshold based on value absolute variation
+     */
+    public static Double getDirectStoppingValueAbsolute() {
+        return directStoppingValueAbsolute;
+    }
+    
+    /**
+     * @return the DIRECT stopping threshold based on value relative variation
+     */
+    public static Double getDirectStoppingValueRelative() {
+        return directStoppingValueRelative;
+    }
+    
+    /**
+     * @return the DIRECT stopping threshold based on parameters absolute variation
+     */
+    public static Double getDirectStoppingParametersAbsolute() {
+        return directStoppingParametersAbsolute;
+    }
+    
+    /**
+     * @return the DIRECT stopping threshold based on parameters relative variation
+     */
+    public static Double getDirectStoppingParametersRelative() {
+        return directStoppingParametersRelative;
+    }
+    
+   /**
      * @return the model file
      */
     public static String getModelFile() {

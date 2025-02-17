@@ -79,18 +79,45 @@ public class DIRECTApproach implements Approach {
         
         optProblem.setMinObjective(DIRECTApproach::f);
         
+        Double d = OptionsPacPMA.getDirectStoppingValueAbsolute();
+        if (d != null) {
+            optProblem.setFtolAbs(d);
+        }
+        d = OptionsPacPMA.getDirectStoppingValueRelative();
+        if (d != null) {
+            optProblem.setFtolRel(d);
+        }
+        d = OptionsPacPMA.getDirectStoppingParametersAbsolute();
+        if (d != null) {
+            optProblem.setXtolAbs(d);
+        }
+        d = OptionsPacPMA.getDirectStoppingParametersRelative();
+        if (d != null) {
+            optProblem.setXtolRel(d);
+        }
+        
         DoubleVector resultVector = optProblem.optimize(lb);
         
         modelChecker.stopModelChecker();
         
         double optVal = optProblem.lastOptimumValue();
+        System.out.println("DIRECTApproach: number of iterations: " + optProblem.getNumevals());
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: number of iterations: " + optProblem.getNumevals());
+        
         Result result = optProblem.lastOptimizeResult();
         switch (result) {
             case SUCCESS:
+            case STOPVAL_REACHED:
+            case FTOL_REACHED:
+            case XTOL_REACHED:
+            case MAXEVAL_REACHED:
+            case MAXTIME_REACHED:
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: analysis completed; computed value " + optVal);
+                System.out.println("DIRECTApproach: analysis completed; computed value " + optVal);
                 break;
             default:
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: failed analysis with result " + result);
+                System.out.println("DIRECTApproach: failed analysis with result " + result);
                 break;
         }
     }
