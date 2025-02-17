@@ -26,57 +26,12 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 
 /**
- * Interface representing a model checker.
+ * Interface representing a batch model checker.
  * 
  * @author Andrea Turrini
  *
  */
-public interface BatchModelChecker {
-    
-    /**
-     * Sets the path to the model file to analyze.
-     * 
-     * @param filePath
-     *            the path to the model file
-     * @return this model checker, for chaining methods invocations
-     */
-    default BatchModelChecker setModelFile(String filePath) {
-        return this;
-    };
-
-    /**
-     * Sets the model type, like prism or jani.
-     * 
-     * @param modelType
-     *            the model type
-     * @return this model checker, for chaining methods invocations
-     */
-    default BatchModelChecker setModelType(String modelType) {
-        return this;
-    };
-
-    /**
-     * Sets the quantitative property formula to verify. It must be a valid formula
-     * supported by the actual model checker.
-     * 
-     * @param propertyFormula
-     *            the property formula
-     * @return this model checker, for chaining methods invocations
-     */
-    default BatchModelChecker setPropertyFormula(String propertyFormula) {
-        return this;
-    };
-
-    /**
-     * Sets the constants of the models.
-     * 
-     * @param constants
-     *            the list of constants
-     * @return this model checker, for chaining methods invocations
-     */
-    default BatchModelChecker setConstants(List<Constant> constants) {
-        return this;
-    };
+public interface BatchModelChecker extends ModelChecker {
 
     /**
      * Sets the parameter values to make the model checkable.
@@ -86,17 +41,6 @@ public interface BatchModelChecker {
      * @return this model checker, for chaining methods invocations
      */
     default BatchModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
-        return this;
-    };
-
-    /**
-     * Additional options to be passed to the model checker.
-     * 
-     * @param options
-     *            the list of options
-     * @return this model checker, for chaining methods invocations
-     */
-    default BatchModelChecker setOptions(List<String> options) {
         return this;
     };
 
@@ -111,14 +55,4 @@ public interface BatchModelChecker {
      *             if the model can't be checked with the provided information
      */
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException;
-    
-    /**
-     * Provides the range of the values computed by the model checker on the provided
-     * constants, or {@code null} if not computed
-     * 
-     * @return an interval about the range of the values computed by the model checker
-     */
-    default Range getRange() {
-        return null;
-    };
 }
