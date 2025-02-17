@@ -42,7 +42,8 @@ import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.function.ExpressionFunction;
 import pacpma.algebra.polynomial.Polynomial;
 import pacpma.approach.Approach;
-import pacpma.approach.ScenarioApproach;
+import pacpma.approach.direct.DIRECTApproach;
+import pacpma.approach.scenario.ScenarioApproach;
 import pacpma.log.OnfileLogEngine;
 import pacpma.log.LogEngine;
 import pacpma.log.NullLogEngine;
@@ -96,9 +97,11 @@ public class OptionsPacPMA {
     }
     
     public final static String APPROACH_SCENARIO = "scenario";
+    public final static String APPROACH_DIRECT = "direct";
     private final static String DEFAULT_APPROACH = APPROACH_SCENARIO;
     private final static Collection<String> COLLECTION_APPROACH = new HashSet<>();
     static {
+        COLLECTION_APPROACH.add(APPROACH_DIRECT);
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
@@ -1040,6 +1043,8 @@ public class OptionsPacPMA {
      */
     public static Approach getAppraochInstance(LogEngine logEngineInstance) {
         switch (approach) {
+        case APPROACH_DIRECT:
+            return new DIRECTApproach(logEngineInstance);
         case APPROACH_SCENARIO:
             return new ScenarioApproach(logEngineInstance);
         default:

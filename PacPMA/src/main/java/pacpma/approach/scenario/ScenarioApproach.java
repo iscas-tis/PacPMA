@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.approach;
+package pacpma.approach.scenario;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -32,6 +32,7 @@ import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
 import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.Variable;
+import pacpma.approach.Approach;
 import pacpma.log.LogEngine;
 import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
@@ -68,17 +69,17 @@ public class ScenarioApproach implements Approach {
         List<Parameter> parameters = OptionsPacPMA.getParameters();
         Variable.setVariables(parameters);
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up template function");
         TemplateFunction templateFunction = OptionsPacPMA.getTemplateFunction();
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up template function done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up template function done");
         if (!templateFunction.isValid()) {
-            logEngineInstance.log(LogEngine.LEVEL_ERROR, "PacPMA: template function not valid");
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "ScenarioApproach: template function not valid");
             return;
         }
         
         List<Map<Parameter, BigDecimal>> samples = new LinkedList<>();
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Generating samples");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Generating samples");
         if (OptionsPacPMA.useVerticesAsSamples()) {
             samples.addAll(new BoundaryPointsGenerator().getSamples(parameters));
         }
@@ -90,7 +91,7 @@ public class ScenarioApproach implements Approach {
         if (randomSamples > 0) {
             samples.addAll(new RandomSampler(randomNumberGenerator, randomSamples).getSamples(parameters));
         }
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Generating samples done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Generating samples done");
         
         if (OptionsPacPMA.printStatistics()) {
             System.out.println("Value of ε: " + OptionsPacPMA.getEpsilon());
@@ -107,7 +108,7 @@ public class ScenarioApproach implements Approach {
             return;
         }
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up LP solver");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up LP solver");
         List<String> lpVariableNames = new LinkedList<>();
         lpVariableNames.add(LAMBDA);
         lpVariableNames.addAll(templateFunction.getCoefficients());
@@ -125,7 +126,7 @@ public class ScenarioApproach implements Approach {
         lpObjectiveFunction.put(LP_LAMBDA, BigDecimal.ONE);
         lpSolver.setObjectiveFunction(OptimizationDirection.MIN, lpObjectiveFunction);
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up model checker pool");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up model checker pool");
         
         int numberThreads = OptionsPacPMA.getModelCheckerThreads();
         List<ModelCheckerInstance> modelCheckerInstances = new ArrayList<>(numberThreads);
@@ -151,14 +152,14 @@ public class ScenarioApproach implements Approach {
             i++;
         }
         ModelCheckerParallel modelcheckerparallel = new ModelCheckerParallel(modelCheckerInstances);
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up model checker pool done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up model checker pool done");
         
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling model checker");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Calling model checker");
         Map<Integer, ModelCheckerResult> modelcheckerResults = modelcheckerparallel.check();
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling model checker done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Calling model checker done");
         if (OptionsPacPMA.showRange()) {
             Range range = modelcheckerparallel.getRange();
-            logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
             System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
         }
         
@@ -166,7 +167,7 @@ public class ScenarioApproach implements Approach {
             logEngineInstance.flush();
         }
 
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Collecting model checker results");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Collecting model checker results");
         for (Map<Integer, List<Constant>> samplesValues : bucketParameterValues) {
             for (Integer identifier : samplesValues.keySet()) {
                 Map<Parameter, BigDecimal> sample = samples.get(identifier);
@@ -201,12 +202,12 @@ public class ScenarioApproach implements Approach {
                 lpSolver.addConstraint(lpConstraint, ConstraintComparison.LE, modelcheckerResult.getResult());
             }
         }
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Collecting model checker results done");
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Setting up LP solver done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Collecting model checker results done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Setting up LP solver done");
 
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling LP solver");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Calling LP solver");
         Map<LPVariable, BigDecimal> lpSolution = lpSolver.solve();
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "PacPMA: Calling LP solver done");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Calling LP solver done");
         if (lpSolution == null) {
             System.out.println("Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Failed to approximate the function for " + OptionsPacPMA.getPropertyFormula());
