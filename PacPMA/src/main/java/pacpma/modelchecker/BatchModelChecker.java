@@ -31,7 +31,7 @@ import pacpma.algebra.Constant;
  * @author Andrea Turrini
  *
  */
-public interface ModelChecker {
+public interface BatchModelChecker {
     
     /**
      * Sets the path to the model file to analyze.
@@ -40,7 +40,7 @@ public interface ModelChecker {
      *            the path to the model file
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setModelFile(String filePath) {
+    default BatchModelChecker setModelFile(String filePath) {
         return this;
     };
 
@@ -51,7 +51,7 @@ public interface ModelChecker {
      *            the model type
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setModelType(String modelType) {
+    default BatchModelChecker setModelType(String modelType) {
         return this;
     };
 
@@ -63,7 +63,7 @@ public interface ModelChecker {
      *            the property formula
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setPropertyFormula(String propertyFormula) {
+    default BatchModelChecker setPropertyFormula(String propertyFormula) {
         return this;
     };
 
@@ -74,7 +74,7 @@ public interface ModelChecker {
      *            the list of constants
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setConstants(List<Constant> constants) {
+    default BatchModelChecker setConstants(List<Constant> constants) {
         return this;
     };
 
@@ -85,7 +85,7 @@ public interface ModelChecker {
      *            a mapping between some integer identifier and the corresponding list of constants
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
+    default BatchModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
         return this;
     };
 
@@ -96,7 +96,7 @@ public interface ModelChecker {
      *            the list of options
      * @return this model checker, for chaining methods invocations
      */
-    default ModelChecker setOptions(List<String> options) {
+    default BatchModelChecker setOptions(List<String> options) {
         return this;
     };
 

@@ -22,7 +22,7 @@ package pacpma.modelchecker.parallel;
 
 import java.util.Map;
 
-import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
 
@@ -32,11 +32,11 @@ import pacpma.modelchecker.Range;
  */
 public class ModelCheckerInstance extends Thread {
     
-    private final ModelChecker modelChecker;
+    private final BatchModelChecker modelChecker;
     private Map<Integer, ModelCheckerResult> results = null;
     private Range range = null;
     
-    public ModelCheckerInstance(ModelChecker modelChecker) {
+    public ModelCheckerInstance(BatchModelChecker modelChecker) {
         this.modelChecker = modelChecker;
     }
 

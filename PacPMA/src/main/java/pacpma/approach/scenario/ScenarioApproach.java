@@ -38,7 +38,7 @@ import pacpma.lp.ConstraintComparison;
 import pacpma.lp.LPVariable;
 import pacpma.lp.OptimizationDirection;
 import pacpma.lp.solver.LPSolver;
-import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
 import pacpma.modelchecker.parallel.ModelCheckerInstance;
@@ -135,7 +135,7 @@ public class ScenarioApproach implements Approach {
             Map<Integer, List<Constant>> currentParameterValues = new HashMap<Integer, List<Constant>>();
             bucketParameterValues.add(currentParameterValues);
 
-            ModelChecker currentModelChecker = OptionsPacPMA.getModelCheckerInstance();
+            BatchModelChecker currentModelChecker = OptionsPacPMA.getModelCheckerInstance();
             currentModelChecker.setModelFile(OptionsPacPMA.getModelFile());
             currentModelChecker.setModelType(OptionsPacPMA.getModelType());
             currentModelChecker.setPropertyFormula(OptionsPacPMA.getPropertyFormula());

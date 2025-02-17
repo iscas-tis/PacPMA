@@ -35,7 +35,7 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
 import pacpma.log.LogEngine;
-import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.options.OptionsPacPMA;
 
@@ -45,7 +45,7 @@ import pacpma.options.OptionsPacPMA;
  * @author Andrea Turrini
  *
  */
-public class SyntheticOctave implements ModelChecker {
+public class SyntheticOctave implements BatchModelChecker {
     private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
     private final static String RESULT = "RESULT";
     
@@ -60,7 +60,7 @@ public class SyntheticOctave implements ModelChecker {
     public SyntheticOctave() {}
     
     @Override
-    public ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
+    public BatchModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
         this.parameterValues = parameterValues;
         return this;
     }

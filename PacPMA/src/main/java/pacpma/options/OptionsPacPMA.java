@@ -54,7 +54,7 @@ import pacpma.lp.solver.matlab.MatlabFileTool;
 import pacpma.lp.solver.matlab.MatlabTool;
 import pacpma.lp.solver.octave.OctaveFileTool;
 import pacpma.lp.solver.octave.OctaveTool;
-import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.prism.PrismSMCTool;
 import pacpma.modelchecker.storm.StormCWrapper;
 import pacpma.modelchecker.storm.StormPython;
@@ -1128,7 +1128,7 @@ public class OptionsPacPMA {
      * 
      * @return an instance of the chosen model checker
      */
-    public static ModelChecker getModelCheckerInstance() {
+    public static BatchModelChecker getModelCheckerInstance() {
         switch (modelchecker) {
         case MODELCHECKER_PRISMSMC:
             return new PrismSMCTool();

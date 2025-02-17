@@ -21,7 +21,7 @@
 /**
  * Parallel model checker package of the PAC-based Parametric Model Analyzer. This package
  * contains the class to run in parallel an instance of
- * {@link pacpma.modelchecker.ModelChecker} to compute the value of
+ * {@link pacpma.modelchecker.BatchModelChecker} to compute the value of
  * quantitative properties on non-parametric models used by the PAC Model
  * checker.
  * 

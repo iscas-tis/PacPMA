@@ -32,7 +32,7 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
 import pacpma.log.LogEngine;
-import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
 import pacpma.options.OptionsPacPMA;
@@ -43,7 +43,7 @@ import pacpma.options.OptionsPacPMA;
  * @author Andrea Turrini
  *
  */
-public class StormPython implements ModelChecker {
+public class StormPython implements BatchModelChecker {
     private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
     
     private final static String RESULT_IDENTIFIER = "StormPython_RESULT";
@@ -61,31 +61,31 @@ public class StormPython implements ModelChecker {
     public StormPython() {}
     
     @Override
-    public ModelChecker setModelFile(String filePath) {
+    public BatchModelChecker setModelFile(String filePath) {
         this.filePath = filePath;
         return this;
     }
 
     @Override
-    public ModelChecker setModelType(String modelType) {
+    public BatchModelChecker setModelType(String modelType) {
         this.modelType = modelType;
         return this;
     }
 
     @Override
-    public ModelChecker setPropertyFormula(String propertyFormula) {
+    public BatchModelChecker setPropertyFormula(String propertyFormula) {
         this.propertyFormula = propertyFormula;
         return this;
     }
 
     @Override
-    public ModelChecker setConstants(List<Constant> constants) {
+    public BatchModelChecker setConstants(List<Constant> constants) {
         this.constants = constants;
         return this;
     }
 
     @Override
-    public ModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
+    public BatchModelChecker setParameterValues(Map<Integer, List<Constant>> parameterValues) {
         this.parameterValues = parameterValues;
         return this;
     }
