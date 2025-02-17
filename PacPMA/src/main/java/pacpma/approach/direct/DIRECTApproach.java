@@ -20,15 +20,20 @@
 
 package pacpma.approach.direct;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import nlopt.Algorithm;
 import nlopt.DoubleVector;
 import nlopt.Opt;
 import nlopt.Result;
+import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
 import pacpma.approach.Approach;
 import pacpma.log.LogEngine;
+import pacpma.modelchecker.ModelCheckerResult;
+import pacpma.modelchecker.interactive.InteractiveModelChecker;
+import pacpma.modelchecker.interactive.storm.StormCWrapper;
 import pacpma.options.OptionsPacPMA;
 
 /**
@@ -38,20 +43,29 @@ import pacpma.options.OptionsPacPMA;
  *
  */
 public class DIRECTApproach implements Approach {
-    private final LogEngine logEngineInstance;
+    private static LogEngine logEngineInstance;
+    private static List<Parameter> parameters;
+    private static InteractiveModelChecker modelChecker;
     
     public DIRECTApproach(LogEngine logEngineInstance) {
-        this.logEngineInstance = logEngineInstance;
+        DIRECTApproach.logEngineInstance = logEngineInstance;
         
         System.loadLibrary("nloptjni");
     }
 
     @Override
     public void doAnalysis() {
-        List<Parameter> parameters = OptionsPacPMA.getParameters();
-        int nPars = parameters.size();
+        parameters = OptionsPacPMA.getParameters();
         
-        Opt optProblem = new Opt(Algorithm.GN_DIRECT, nPars);
+        modelChecker = new StormCWrapper();
+        modelChecker.setModelType(OptionsPacPMA.getModelType());
+        modelChecker.setModelFile(OptionsPacPMA.getModelFile());
+        modelChecker.setPropertyFormula(OptionsPacPMA.getPropertyFormula());
+        modelChecker.setConstants(OptionsPacPMA.getConstants());
+        modelChecker.setOptions(OptionsPacPMA.getModelCheckerOptions());
+        modelChecker.startModelChecker();
+        
+        Opt optProblem = new Opt(Algorithm.GN_DIRECT, parameters.size());
         
         DoubleVector lb = new DoubleVector();
         DoubleVector ub = new DoubleVector();
@@ -63,9 +77,12 @@ public class DIRECTApproach implements Approach {
         optProblem.setLowerBounds(lb);
         optProblem.setUpperBounds(ub);
         
-        optProblem.setMaxObjective(DIRECTApproach::f);
-       
+        optProblem.setMinObjective(DIRECTApproach::f);
+        
         DoubleVector resultVector = optProblem.optimize(lb);
+        
+        modelChecker.stopModelChecker();
+        
         double optVal = optProblem.lastOptimumValue();
         Result result = optProblem.lastOptimizeResult();
         switch (result) {
@@ -79,6 +96,17 @@ public class DIRECTApproach implements Approach {
     }
 
     private static double f(double[] x, double[] grad) {
-        return 0;
+        int nPars = x.length;
+        List<Constant> instances = new ArrayList<>(nPars);
+        for (int i = 0; i < nPars; i++) {
+            instances.add(new Constant(parameters.get(i).getName(), String.valueOf(x[i])));
+        }
+        ModelCheckerResult result = modelChecker.check(instances);
+        if (result.isInfinite()) {
+            logEngineInstance.log(LogEngine.LEVEL_WARNING, "DIRECTApproach: model checking result is infinite for instance " + instances.toString());
+            throw new IllegalArgumentException("DIRECTApproach: model checking result is infinite for instance " + instances.toString());
+        } else {
+            return result.getResult().doubleValue();
+        }
     }
 }
