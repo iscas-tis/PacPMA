@@ -19,11 +19,12 @@
  *****************************************************************************/
 
 /**
- * Storm model checker package of the PAC-based Parametric Model Analyzer. This package contains
- * the class to interact with the Storm model checker to compute the value of
+ * Parallel model checker package of the PAC-based Parametric Model Analyzer. This package
+ * contains the class to run in parallel an instance of
+ * {@link pacpma.modelchecker.batch.BatchModelChecker} to compute the value of
  * quantitative properties on non-parametric models used by the PAC Model
  * checker.
  * 
  * @author Andrea Turrini
  */
-package pacpma.modelchecker.storm;
+package pacpma.modelchecker.batch.parallel;

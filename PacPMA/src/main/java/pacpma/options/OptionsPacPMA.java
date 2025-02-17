@@ -54,13 +54,13 @@ import pacpma.lp.solver.matlab.MatlabFileTool;
 import pacpma.lp.solver.matlab.MatlabTool;
 import pacpma.lp.solver.octave.OctaveFileTool;
 import pacpma.lp.solver.octave.OctaveTool;
-import pacpma.modelchecker.BatchModelChecker;
-import pacpma.modelchecker.prism.PrismSMCTool;
-import pacpma.modelchecker.storm.StormCWrapper;
-import pacpma.modelchecker.storm.StormPython;
-import pacpma.modelchecker.storm.StormTool;
-import pacpma.modelchecker.storm.StormsmcCWrapper;
-import pacpma.modelchecker.synthetic.SyntheticOctave;
+import pacpma.modelchecker.batch.BatchModelChecker;
+import pacpma.modelchecker.batch.prism.PrismSMCTool;
+import pacpma.modelchecker.batch.storm.StormCWrapper;
+import pacpma.modelchecker.batch.storm.StormPython;
+import pacpma.modelchecker.batch.storm.StormTool;
+import pacpma.modelchecker.batch.storm.StormsmcCWrapper;
+import pacpma.modelchecker.batch.synthetic.SyntheticOctave;
 import pacpma.util.Util;
 
 /**

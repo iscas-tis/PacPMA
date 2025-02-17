@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker.storm;
+package pacpma.modelchecker.batch.storm;
 
 import static pacpma.util.Util.appendConstant;
 
@@ -32,21 +32,21 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
 import pacpma.log.LogEngine;
-import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
+import pacpma.modelchecker.batch.BatchModelChecker;
 import pacpma.options.OptionsPacPMA;
 
 /**
- * C Wrapper for the Storm model checker.
+ * Wrapper for the Storm model checker, interacting via Python.
  * 
  * @author Andrea Turrini
  *
  */
-public class StormCWrapper implements BatchModelChecker {
+public class StormPython implements BatchModelChecker {
     private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
     
-    private final static String RESULT_IDENTIFIER = "StormCWrapper_RESULT";
+    private final static String RESULT_IDENTIFIER = "StormPython_RESULT";
     
     private final static String FIELD_SEPARATOR = ":";
     
@@ -58,7 +58,7 @@ public class StormCWrapper implements BatchModelChecker {
     private final boolean computeRange = OptionsPacPMA.showRange();
     private Range range = null;
 
-    public StormCWrapper() {}
+    public StormPython() {}
     
     @Override
     public BatchModelChecker setModelFile(String filePath) {
@@ -92,7 +92,7 @@ public class StormCWrapper implements BatchModelChecker {
 
     @Override
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: starting check procedure");
         if (filePath == null) {
             throw new IllegalStateException("Model file not specified");
         }
@@ -113,39 +113,37 @@ public class StormCWrapper implements BatchModelChecker {
         
         String program = OptionsPacPMA.getModelCheckerPath();
         if (program == null) {
-            command.add("storm-c-wrapper");
+            command.add("storm-python.py");
         } else {
             command.add(program);
         }
         command.add(modelType);
         command.add(filePath);
         command.add(propertyFormula);
-
-        {
-            final StringBuilder sbc = new StringBuilder();
-            constants.forEach(c -> appendConstant(sbc, c));
-            command.add(sbc.toString());
-        }
+        
+        StringBuilder sbc = new StringBuilder();
+        constants.forEach(c -> appendConstant(sbc, c));
+        command.add(sbc.toString());
         
         for (Integer identifier : parameterValues.keySet()) {
-            final StringBuilder sbp = new StringBuilder();
+            StringBuilder sbp = new StringBuilder();
+            sbp.append(identifier).append(FIELD_SEPARATOR);
             parameterValues.get(identifier).forEach(c -> appendConstant(sbp, c));
-            sbp.insert(0,identifier + FIELD_SEPARATOR);
-            logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: sample " + sbp.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormPython: sample " + sbp.toString());
             messages.add(sbp.toString());
         }
         
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: calling actual solver");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: calling actual solver");
         ToolRunner toolRunner = new ToolRunner(command, messages); 
         List<String> output = toolRunner.run();
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: calling actual solver done");
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: exit value: " + toolRunner.getExitValue());
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: calling actual solver done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: exit value: " + toolRunner.getExitValue());
         if (output == null) {
             throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
         }
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: extracting results");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: extracting results");
         for (String message: output) {
-            logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: raw result: " + message);
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormPython: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
                 String result = messageSplit[2];
@@ -165,11 +163,11 @@ public class StormCWrapper implements BatchModelChecker {
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
             }
         }
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: extracting results done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: extracting results done");
         if (results.size() != parameterValues.size()) {
             throw new RuntimeException("Incorrect number of results; raw output:\n" + output);            
         }
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormPython: check procedure done");
         return results;
     }
 

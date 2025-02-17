@@ -1,7 +1,7 @@
 /****************************************************************************
 
-    PacPMA - the PAC-based Parametric Model Analyzer
-    Copyright (C) 2023
+    PACModel - a PAC-based model checker
+    Copyright (C) 2025
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,12 +19,9 @@
  *****************************************************************************/
 
 /**
- * Parallel model checker package of the PAC-based Parametric Model Analyzer. This package
- * contains the class to run in parallel an instance of
- * {@link pacpma.modelchecker.BatchModelChecker} to compute the value of
- * quantitative properties on non-parametric models used by the PAC Model
- * checker.
+ * A batch model checker.
  * 
  * @author Andrea Turrini
+ *
  */
-package pacpma.modelchecker.parallel;
+package pacpma.modelchecker.batch;

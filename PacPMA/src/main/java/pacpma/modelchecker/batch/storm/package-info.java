@@ -18,39 +18,12 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker.parallel;
-
-import java.util.Map;
-
-import pacpma.modelchecker.BatchModelChecker;
-import pacpma.modelchecker.ModelCheckerResult;
-import pacpma.modelchecker.Range;
-
 /**
+ * Storm model checker package of the PAC-based Parametric Model Analyzer. This package contains
+ * the class to interact with the Storm model checker to compute the value of
+ * quantitative properties on non-parametric models used by the PAC Model
+ * checker.
+ * 
  * @author Andrea Turrini
- *
  */
-public class ModelCheckerInstance extends Thread {
-    
-    private final BatchModelChecker modelChecker;
-    private Map<Integer, ModelCheckerResult> results = null;
-    private Range range = null;
-    
-    public ModelCheckerInstance(BatchModelChecker modelChecker) {
-        this.modelChecker = modelChecker;
-    }
-
-    @Override
-    public void run() {
-        results = modelChecker.check();
-        range = modelChecker.getRange();
-    }
-    
-    public Map<Integer, ModelCheckerResult> getResults() {
-        return results;
-    }
-    
-    public Range getRange() {
-        return range;
-    }
-}
+package pacpma.modelchecker.batch.storm;

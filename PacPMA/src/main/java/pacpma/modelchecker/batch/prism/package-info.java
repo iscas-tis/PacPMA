@@ -26,4 +26,4 @@
  * 
  * @author Andrea Turrini
  */
-package pacpma.modelchecker.prism;
+package pacpma.modelchecker.batch.prism;

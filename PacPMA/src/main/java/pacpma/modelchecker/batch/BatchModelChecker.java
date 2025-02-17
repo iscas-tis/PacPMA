@@ -18,12 +18,14 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker;
+package pacpma.modelchecker.batch;
 
 import java.util.List;
 import java.util.Map;
 
 import pacpma.algebra.Constant;
+import pacpma.modelchecker.ModelChecker;
+import pacpma.modelchecker.ModelCheckerResult;
 
 /**
  * Interface representing a batch model checker.

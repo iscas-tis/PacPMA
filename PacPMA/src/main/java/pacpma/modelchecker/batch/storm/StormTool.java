@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker.prism;
+package pacpma.modelchecker.batch.storm;
 
 import static pacpma.util.Util.appendConstant;
 
@@ -32,22 +32,21 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
 import pacpma.log.LogEngine;
-import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
+import pacpma.modelchecker.batch.BatchModelChecker;
 import pacpma.options.OptionsPacPMA;
 
 /**
- * Wrapper for the PRISM model checker running in statistical mode, interacting
- * as an external tool.
+ * Wrapper for the Storm model checker, interacting as an external tool.
  * 
  * @author Andrea Turrini
  *
  */
-public class PrismSMCTool implements BatchModelChecker {
+public class StormTool implements BatchModelChecker {
     private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
     
-    private final static String RESULT = "Result: ";
+    private final static String RESULT = "Result (for initial states):";
     
     private String filePath = null;
     private String modelType = null;
@@ -58,7 +57,7 @@ public class PrismSMCTool implements BatchModelChecker {
     private final boolean computeRange = OptionsPacPMA.showRange();
     private Range range = null;
 
-    public PrismSMCTool() {}
+    public StormTool() {}
     
     @Override
     public BatchModelChecker setModelFile(String filePath) {
@@ -98,7 +97,7 @@ public class PrismSMCTool implements BatchModelChecker {
 
     @Override
     public Map<Integer, ModelCheckerResult> check() throws IllegalStateException {
-        logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: starting check procedure");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormTool: starting check procedure");
         if (filePath == null) {
             throw new IllegalStateException("Model file not specified");
         }
@@ -120,63 +119,43 @@ public class PrismSMCTool implements BatchModelChecker {
             List<String> command = new LinkedList<>();
             String program = OptionsPacPMA.getModelCheckerPath();
             if (program == null) {
-                command.add("prism");
+                command.add("storm");
             } else {
                 command.add(program);
             }
+            command.add("--" + modelType);
             command.add(filePath);
-            command.add("-pf");
+            command.add("--prop");
             command.add(propertyFormula);
+            if (modelType.equals(OptionsPacPMA.MODELTYPE_PRISM)) {
+                command.add("--prismcompat");
+            }
             StringBuilder sb = new StringBuilder();
             constants.forEach(c -> appendConstant(sb,c));
             singleParameters.forEach(c -> appendConstant(sb,c));
             if (sb.length() > 0) {
-                command.add("-const");
+                command.add("--constants");
                 command.add(sb.toString());
             }
-            command.add("-sim");
-            command.add("-simmethod");
-            command.add(OptionsPacPMA.getPrismsmcMethod());
-            String opt = OptionsPacPMA.getPrismsmcApprox();
-            if (opt != null) {
-                command.add("-simapprox");
-                command.add(opt);
-            }
-            opt = OptionsPacPMA.getPrismsmcConf();
-            if (opt != null) {
-                command.add("-simconf");
-                command.add(opt);
-            }
-            opt = OptionsPacPMA.getPrismsmcPathlen();
-            if (opt != null) {
-                command.add("-simpathlen");
-                command.add(opt);
-            }
-            opt = OptionsPacPMA.getPrismsmcSamples();
-            if (opt != null) {
-                command.add("-simsamples");
-                command.add(opt);
-            }
-            
-            logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: sample " + identifier + ":" + sb.toString());
+            logEngine.log(LogEngine.LEVEL_DEBUG, "StormTool: sample " + sb.toString());
             if (options != null) {
                 options.forEach((o) -> command.add(o));
             }
             
-            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: calling actual solver");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: calling actual solver");
             ToolRunner toolRunner = new ToolRunner(command); 
             List<String> output = toolRunner.run();
-            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: calling actual solver done");
-            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: exit value: " + toolRunner.getExitValue());
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: calling actual solver done");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: exit value: " + toolRunner.getExitValue());
             if (output == null) {
                 throw new RuntimeException("no output returned; exit value: " + toolRunner.getExitValue());
             }
-            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: extracting result");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: extracting result");
             boolean hasFailed = true;
             for (String message : output) {
-                logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: raw result: " + message);
+                logEngine.log(LogEngine.LEVEL_DEBUG, "StormTool: raw result: " + message);
                 if (message.startsWith(RESULT)) {
-                    String result = message.split(" ")[1];
+                    String result = message.substring(RESULT.length()).trim();
                     ModelCheckerResult modelCheckerResult;
                     if (result.equals("inf")) {
                         modelCheckerResult = new ModelCheckerResult();
@@ -190,7 +169,6 @@ public class PrismSMCTool implements BatchModelChecker {
                             range.updateRange(modelCheckerResult);
                         }
                     }
-                    logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: computed result: " + identifier + ":" + modelCheckerResult);
                     results.put(identifier, modelCheckerResult);
                     hasFailed = false;
                 }
@@ -198,9 +176,9 @@ public class PrismSMCTool implements BatchModelChecker {
             if (hasFailed) {
                 throw new RuntimeException("Failed execution; raw output:\n" + output);            
             }
-            logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: extracting result done");
+            logEngine.log(LogEngine.LEVEL_INFO, "StormTool: extracting result done");
         }
-        logEngine.log(LogEngine.LEVEL_INFO, "PrismSMCTool: check procedure done");
+        logEngine.log(LogEngine.LEVEL_INFO, "StormTool: check procedure done");
         return results;
     }
 

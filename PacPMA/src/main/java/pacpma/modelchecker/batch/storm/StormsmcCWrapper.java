@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker.storm;
+package pacpma.modelchecker.batch.storm;
 
 import static pacpma.util.Util.appendConstant;
 
@@ -32,9 +32,9 @@ import java.util.Map;
 import pacpma.algebra.Constant;
 import pacpma.externaltool.ToolRunner;
 import pacpma.log.LogEngine;
-import pacpma.modelchecker.BatchModelChecker;
 import pacpma.modelchecker.ModelCheckerResult;
 import pacpma.modelchecker.Range;
+import pacpma.modelchecker.batch.BatchModelChecker;
 import pacpma.options.OptionsPacPMA;
 
 /**

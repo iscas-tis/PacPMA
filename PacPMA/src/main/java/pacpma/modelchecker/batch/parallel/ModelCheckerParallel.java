@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.modelchecker.parallel;
+package pacpma.modelchecker.batch.parallel;
 
 import java.util.Collection;
 import java.util.HashMap;
