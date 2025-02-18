@@ -77,7 +77,11 @@ public class DIRECTApproach implements Approach {
         optProblem.setLowerBounds(lb);
         optProblem.setUpperBounds(ub);
         
-        optProblem.setMinObjective(DIRECTApproach::f);
+        if (OptionsPacPMA.isDirectOptimizationDirectionMin()) {
+            optProblem.setMinObjective(DIRECTApproach::f);
+        } else {
+            optProblem.setMaxObjective(DIRECTApproach::f);
+        }
         
         Double d = OptionsPacPMA.getDirectStoppingValueAbsolute();
         if (d != null) {

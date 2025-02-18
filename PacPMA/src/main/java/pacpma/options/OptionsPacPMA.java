@@ -175,6 +175,15 @@ public class OptionsPacPMA {
     private final static String DEFAULT_EXPRESSION_PRECISION = "10";
     
     private final static String DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE = "1e-8";
+    
+    private final static String DIRECT_OPTIMIZATION_MIN = "min";
+    private final static String DIRECT_OPTIMIZATION_MAX = "max";
+    private final static Collection<String> COLLECTION_DIRECT_OPTIMIZATION = new HashSet<>();
+    static {
+        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MAX);
+        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MIN);
+    }
+    private final static String DEFAULT_DIRECT_OPTIMIZATION_DIRECTION = DIRECT_OPTIMIZATION_MIN;
 
     private final static String LAMBDA_INFINITE = "Infinity";
 
@@ -360,6 +369,14 @@ public class OptionsPacPMA {
                 .desc("intervals for the parameters, with l < u being decimal numbers")
                 .build();
     
+    private final static Option option_direct_optimization_direction = 
+            Option.builder()
+                .longOpt("direct-optimization-direction")
+                .argName(getAlternatives(COLLECTION_DIRECT_OPTIMIZATION))
+                .hasArg()
+                .desc("DIRECT optimization direction; default: " + DEFAULT_DIRECT_OPTIMIZATION_DIRECTION)
+                .build();
+    
     private final static Option option_direct_stopping_value_absolute = 
             Option.builder()
                 .longOpt("direct-stopping-value-absolute")
@@ -530,6 +547,7 @@ public class OptionsPacPMA {
         options.addOption(option_property);
         options.addOption(option_consts);
         options.addOption(option_params);
+        options.addOption(option_direct_optimization_direction);
         options.addOption(option_direct_stopping_value_absolute);
         options.addOption(option_direct_stopping_value_relative);
         options.addOption(option_direct_stopping_parameters_absolute);
@@ -580,6 +598,7 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverPrecision;
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
+    private static boolean directOptimizationDirectionMin;
     private static Double directStoppingValueAbsolute = null;
     private static Double directStoppingValueRelative = null;
     private static Double directStoppingParametersAbsolute = null;
@@ -704,6 +723,17 @@ public class OptionsPacPMA {
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_lambda));
                     }
+                }
+                
+                switch (commandline.getOptionValue(option_direct_optimization_direction, DEFAULT_DIRECT_OPTIMIZATION_DIRECTION)) {
+                case DIRECT_OPTIMIZATION_MIN:
+                    directOptimizationDirectionMin = true;
+                    break;
+                case DIRECT_OPTIMIZATION_MAX:
+                    directOptimizationDirectionMin = false;
+                    break;
+                default:
+                    parsingErrors.add(getInvalidMessage(commandline, option_direct_optimization_direction)); 
                 }
                 
                 boolean has_stopping_criterion = false;
@@ -1068,6 +1098,13 @@ public class OptionsPacPMA {
         return lambdaInfinite;
     }
 
+    /**
+     * @return whether the DIRECT optimization direction is minimize
+     */
+    public static boolean isDirectOptimizationDirectionMin() {
+        return directOptimizationDirectionMin;
+    }
+    
     /**
      * @return the DIRECT stopping threshold based on value absolute variation
      */
