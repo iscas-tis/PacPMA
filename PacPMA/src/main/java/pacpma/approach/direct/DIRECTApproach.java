@@ -116,8 +116,13 @@ public class DIRECTApproach implements Approach {
             case XTOL_REACHED:
             case MAXEVAL_REACHED:
             case MAXTIME_REACHED:
-                logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: analysis completed; computed value " + optVal);
-                System.out.println("DIRECTApproach: analysis completed; computed value " + optVal);
+                int nPars = resultVector.size();
+                List<Constant> optParameters = new ArrayList<>(nPars);
+                for (int i = 0; i < nPars; i++) {
+                    optParameters.add(new Constant(parameters.get(i).getName(), resultVector.get(i).toString()));
+                }
+                logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
+                System.out.println("DIRECTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
                 break;
             default:
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: failed analysis with result " + result);
