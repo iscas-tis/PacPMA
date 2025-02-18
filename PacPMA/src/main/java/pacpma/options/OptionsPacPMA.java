@@ -173,6 +173,8 @@ public class OptionsPacPMA {
     }
     
     private final static String DEFAULT_EXPRESSION_PRECISION = "10";
+    
+    private final static String DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE = "1e-8";
 
     private final static String LAMBDA_INFINITE = "Infinity";
 
@@ -363,7 +365,7 @@ public class OptionsPacPMA {
                 .longOpt("direct-stopping-value-absolute")
                 .argName("real")
                 .hasArg()
-                .desc("DIRECT stopping threshold based on the absolute variation of the computed value between two successive optimization steps")
+                .desc("DIRECT stopping threshold based on the absolute variation of the computed value between two successive optimization steps; if no other stopping criterion is used, a default of " + DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE + " is used")
                 .build();
     
     private final static Option option_direct_stopping_value_relative = 
@@ -704,17 +706,12 @@ public class OptionsPacPMA {
                     }
                 }
                 
-                if (commandline.hasOption(option_direct_stopping_value_absolute)) {
-                    try {
-                        directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute));
-                    } catch (NumberFormatException nfe) {
-                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_absolute));
-                    }
-                }
+                boolean has_stopping_criterion = false;
 
                 if (commandline.hasOption(option_direct_stopping_value_relative)) {
                     try {
                         directStoppingValueRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_relative));
+                        has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_relative));
                     }
@@ -723,6 +720,7 @@ public class OptionsPacPMA {
                 if (commandline.hasOption(option_direct_stopping_parameters_absolute)) {
                     try {
                         directStoppingParametersAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_absolute));
+                        has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_absolute));
                     }
@@ -731,9 +729,22 @@ public class OptionsPacPMA {
                 if (commandline.hasOption(option_direct_stopping_parameters_relative)) {
                     try {
                         directStoppingParametersRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_relative));
+                        has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_relative));
                     }
+                }
+
+                try {
+                    if (has_stopping_criterion) {
+                        if (commandline.hasOption(option_direct_stopping_value_absolute)) {
+                            directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute));
+                        } 
+                    } else {
+                        directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute, DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE));
+                    }
+                } catch (NumberFormatException nfe) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_absolute));
                 }
 
                 if (commandline.hasOption(option_modelFile)) {
