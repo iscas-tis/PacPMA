@@ -141,7 +141,7 @@ public class DIRECTApproach implements Approach {
         ModelCheckerResult result = modelChecker.check(instances);
         if (result.isInfinite()) {
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "DIRECTApproach: model checking result is infinite for instance " + instances.toString());
-            throw new IllegalArgumentException("DIRECTApproach: model checking result is infinite for instance " + instances.toString());
+            return Double.POSITIVE_INFINITY;
         } else {
             return result.getResult().doubleValue();
         }
