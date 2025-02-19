@@ -105,7 +105,7 @@ public class DIRECTApproach implements Approach {
         modelChecker.stopModelChecker();
         
         double optVal = optProblem.lastOptimumValue();
-        System.out.println("DIRECTApproach: number of iterations: " + optProblem.getNumevals());
+        System.out.println("Number of iterations: " + optProblem.getNumevals());
         logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: number of iterations: " + optProblem.getNumevals());
         
         Result result = optProblem.lastOptimizeResult();
@@ -122,7 +122,8 @@ public class DIRECTApproach implements Approach {
                     optParameters.add(new Constant(parameters.get(i).getName(), resultVector.get(i).toString()));
                 }
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
-                System.out.println("DIRECTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
+                System.out.println("Optimal value: " + optVal);
+                System.out.println("Coordinates of optimal value: " + optParameters);
                 break;
             default:
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: failed analysis with result " + result);
