@@ -72,7 +72,7 @@ TOKEN :
 
 private List<ExpressionTerm > actualParser() :
 {
-    List<ExpressionTerm> terms = new ArrayList<>();
+    List<ExpressionTerm> terms = new ArrayList<ExpressionTerm>();
     Expression e;
 }
 {
