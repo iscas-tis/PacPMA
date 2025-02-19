@@ -50,7 +50,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
         STOPPED
     }
     
-    private final static LogEngine logEngine = OptionsPacPMA.getLogEngineInstance();
+    private final static LogEngine logEngineInstance = OptionsPacPMA.getLogEngineInstance();
     
     private final static String RESULT_IDENTIFIER = "StormCWrapper_RESULT";
     
@@ -106,7 +106,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
 
     @Override
     public void startModelChecker() throws IllegalStateException {
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: starting the model checker");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "StormCWrapper: starting the model checker");
         
         if (stage != Stage.INITIALIZE) {
             throw new IllegalStateException("The model checker is not in the initialize stage");
@@ -148,7 +148,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
         try {
             modelCheckerProcess = pb.start();
         } catch (IOException e) {
-            logEngine.log(LogEngine.LEVEL_ERROR, "StormCWrapper: failed to start the model checker; error: " + e);
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "StormCWrapper: failed to start the model checker; error: " + e);
             return;
         }      
         
@@ -156,7 +156,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
         modelCheckerOutput = new BufferedReader(new InputStreamReader(modelCheckerProcess.getInputStream()));
         
         stage = Stage.STARTED;
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: the model checker started");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "StormCWrapper: the model checker started");
     }
 
     @Override
@@ -168,7 +168,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
         final StringBuilder sbp = new StringBuilder();
         parameterValues.forEach(c -> appendConstant(sbp, c));
         sbp.insert(0, identifier + FIELD_SEPARATOR);
-        logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: checking " + sbp.toString());
+        logEngineInstance.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: checking " + sbp.toString());
         sbp.append('\n');
         
         String message;
@@ -177,12 +177,12 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
             modelCheckerInput.flush();
             message = modelCheckerOutput.readLine();
         } catch (IOException ioe) {
-            logEngine.log(LogEngine.LEVEL_ERROR, "StormCWrapper: checking failure for point " + sbp.toString() + "; message: " + ioe.toString());
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "StormCWrapper: checking failure for point " + sbp.toString() + "; message: " + ioe.toString());
             return null;
         }
         
         ModelCheckerResult modelCheckerResult = null;
-        logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: raw result: " + message);
+        logEngineInstance.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: raw result: " + message);
         if (message.startsWith(RESULT_IDENTIFIER)) {
             String[] messageSplit = message.split(FIELD_SEPARATOR);
             String result = messageSplit[2];
@@ -199,14 +199,17 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
                 }
             }
         }
-        
+
+        if (OptionsPacPMA.useLogging() && (identifier % 100 == 0)) {
+            logEngineInstance.flush();
+        }
         identifier++;
         return modelCheckerResult;
     }
 
     @Override
     public void stopModelChecker() throws IllegalStateException {
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: stopping the model checker");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "StormCWrapper: stopping the model checker");
         if (stage != Stage.STARTED) {
             throw new IllegalStateException("The model checker is not started");
         }
@@ -219,7 +222,7 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
             modelCheckerOutput.close();
         } catch (IOException ioe) {}
 
-        logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: model checker stopped");
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "StormCWrapper: model checker stopped");
     }
     
 }
