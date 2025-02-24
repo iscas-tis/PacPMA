@@ -65,7 +65,7 @@ public class DIRECTApproach implements Approach {
         modelChecker.setOptions(OptionsPacPMA.getModelCheckerOptions());
         modelChecker.startModelChecker();
         
-        Opt optProblem = new Opt(Algorithm.GN_DIRECT, parameters.size());
+        Opt optProblem = new Opt(OptionsPacPMA.getDirectAlgorithm(), parameters.size());
         
         DoubleVector lb = new DoubleVector();
         DoubleVector ub = new DoubleVector();

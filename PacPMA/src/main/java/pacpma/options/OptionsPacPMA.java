@@ -36,6 +36,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import nlopt.Algorithm;
 import pacpma.algebra.Constant;
 import pacpma.algebra.Parameter;
 import pacpma.algebra.TemplateFunction;
@@ -105,6 +106,37 @@ public class OptionsPacPMA {
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
+    public final static String DIRECT_ALGORITHM_DIRECT = "direct";
+    public final static String DIRECT_ALGORITHM_DIRECT_L = "direct-l";
+    public final static String DIRECT_ALGORITHM_DIRECT_L_RAND = "direct-l-rand";
+    public final static String DIRECT_ALGORITHM_DIRECT_NOSCAL = "direct-noscal";
+    public final static String DIRECT_ALGORITHM_DIRECT_L_NOSCAL = "direct-l-noscal";
+    public final static String DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL = "direct-l-rand-noscal";
+    public final static String DIRECT_ALGORITHM_DIRECT_ORIG = "direct-orig";
+    public final static String DIRECT_ALGORITHM_DIRECT_L_ORIG = "direct-l-orig";
+    public final static String DEFAULT_DIRECT_ALGORITHM = DIRECT_ALGORITHM_DIRECT;
+    private final static Collection<String> COLLECTION_DIRECT_ALGORITHM = new HashSet<>();
+    static {
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_RAND);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_NOSCAL);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_NOSCAL);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_ORIG);
+        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_ORIG);
+    }
+   
+    private final static String DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE = "1e-8";
+    
+    private final static String DIRECT_OPTIMIZATION_MIN = "min";
+    private final static String DIRECT_OPTIMIZATION_MAX = "max";
+    private final static Collection<String> COLLECTION_DIRECT_OPTIMIZATION = new HashSet<>();
+    static {
+        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MAX);
+        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MIN);
+    }
+    private final static String DEFAULT_DIRECT_OPTIMIZATION_DIRECTION = DIRECT_OPTIMIZATION_MIN;
+
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
     public final static String LPSOLVER_MATLAB = "matlab";
     public final static String LPSOLVER_MATLAB_FILE = "matlab-file";
@@ -174,17 +206,6 @@ public class OptionsPacPMA {
     
     private final static String DEFAULT_EXPRESSION_PRECISION = "10";
     
-    private final static String DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE = "1e-8";
-    
-    private final static String DIRECT_OPTIMIZATION_MIN = "min";
-    private final static String DIRECT_OPTIMIZATION_MAX = "max";
-    private final static Collection<String> COLLECTION_DIRECT_OPTIMIZATION = new HashSet<>();
-    static {
-        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MAX);
-        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MIN);
-    }
-    private final static String DEFAULT_DIRECT_OPTIMIZATION_DIRECTION = DIRECT_OPTIMIZATION_MIN;
-
     private final static String LAMBDA_INFINITE = "Infinity";
 
     public final static String DEFAULT_LPSOLVER_PRECISION = "10e-10";
@@ -369,6 +390,14 @@ public class OptionsPacPMA {
                 .desc("intervals for the parameters, with l < u being decimal numbers")
                 .build();
     
+    private final static Option option_direct_algorithm = 
+            Option.builder()
+                .longOpt("direct-algorithm")
+                .argName(getAlternatives(COLLECTION_DIRECT_ALGORITHM))
+                .hasArg()
+                .desc("underlying DIRECT algorithm; default: " + DEFAULT_DIRECT_ALGORITHM + ". For details, see https://https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#direct-and-direct-l")
+                .build();
+    
     private final static Option option_direct_optimization_direction = 
             Option.builder()
                 .longOpt("direct-optimization-direction")
@@ -547,6 +576,7 @@ public class OptionsPacPMA {
         options.addOption(option_property);
         options.addOption(option_consts);
         options.addOption(option_params);
+        options.addOption(option_direct_algorithm);
         options.addOption(option_direct_optimization_direction);
         options.addOption(option_direct_stopping_value_absolute);
         options.addOption(option_direct_stopping_value_relative);
@@ -599,6 +629,7 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
     private static boolean directOptimizationDirectionMin;
+    private static String directAlgorithm = null;
     private static Double directStoppingValueAbsolute = null;
     private static Double directStoppingValueRelative = null;
     private static Double directStoppingParametersAbsolute = null;
@@ -723,6 +754,11 @@ public class OptionsPacPMA {
                     } catch (NumberFormatException nfe) {
                         parsingErrors.add(getInvalidMessage(commandline, option_lambda));
                     }
+                }
+                
+                directAlgorithm = commandline.getOptionValue(option_direct_algorithm, DEFAULT_DIRECT_ALGORITHM);
+                if (!COLLECTION_DIRECT_ALGORITHM.contains(directAlgorithm)) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_direct_algorithm));
                 }
                 
                 switch (commandline.getOptionValue(option_direct_optimization_direction, DEFAULT_DIRECT_OPTIMIZATION_DIRECTION)) {
@@ -1197,6 +1233,34 @@ public class OptionsPacPMA {
             return new ScenarioApproach(logEngineInstance);
         default:
             throw new UnsupportedOperationException("Unexpected approach");
+        }
+    }
+    
+    /**
+     * Returns the underlying DIRECT algorithm.
+     * 
+     * @return the DIRECT algorithm
+     */
+    public static Algorithm getDirectAlgorithm() {
+        switch (directAlgorithm) {
+        case DIRECT_ALGORITHM_DIRECT:
+            return Algorithm.GN_DIRECT;
+        case DIRECT_ALGORITHM_DIRECT_L:
+            return Algorithm.GN_DIRECT_L;
+        case DIRECT_ALGORITHM_DIRECT_L_RAND:
+            return Algorithm.GN_DIRECT_L_RAND;
+        case DIRECT_ALGORITHM_DIRECT_NOSCAL:
+            return Algorithm.GN_DIRECT_NOSCAL;
+        case DIRECT_ALGORITHM_DIRECT_L_NOSCAL:
+            return Algorithm.GN_DIRECT_L_NOSCAL;
+        case DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL:
+            return Algorithm.GN_DIRECT_L_RAND_NOSCAL;
+        case DIRECT_ALGORITHM_DIRECT_ORIG:
+            return Algorithm.GN_ORIG_DIRECT;
+        case DIRECT_ALGORITHM_DIRECT_L_ORIG:
+            return Algorithm.GN_ORIG_DIRECT_L;
+        default:
+            throw new UnsupportedOperationException("Unexpected DIRECT algorithm " + directAlgorithm);
         }
     }
     
