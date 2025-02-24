@@ -387,7 +387,7 @@ public class OptionsPacPMA {
     
     private final static Option option_direct_stopping_value_relative = 
             Option.builder()
-                .longOpt("direct-stopping-value-absolute")
+                .longOpt("direct-stopping-value-relative")
                 .argName("real")
                 .hasArg()
                 .desc("DIRECT stopping threshold based on the relative variation of the computed value between two successive optimization steps")
@@ -403,7 +403,7 @@ public class OptionsPacPMA {
     
     private final static Option option_direct_stopping_parameters_relative = 
             Option.builder()
-                .longOpt("direct-stopping-parameters-absolute")
+                .longOpt("direct-stopping-parameters-relative")
                 .argName("real")
                 .hasArg()
                 .desc("DIRECT stopping threshold based on the relative variation of the L2 norm of the parameters between two successive optimization steps")
