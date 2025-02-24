@@ -163,6 +163,8 @@ public class StormCWrapper implements BatchModelChecker {
                     }
                 }
                 results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
+            } else { //something wrong happened, probably a std::bad_alloc; just throw it
+                throw new IllegalStateException(message);
             }
         }
         logEngine.log(LogEngine.LEVEL_INFO, "StormCWrapper: extracting results done");

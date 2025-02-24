@@ -198,6 +198,8 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
                     range.updateRange(modelCheckerResult);
                 }
             }
+        } else { //something wrong happened, probably a std::bad_alloc; just throw it
+            throw new IllegalStateException(message);
         }
 
         if (OptionsPacPMA.useLogging() && (identifier % 100 == 0)) {
