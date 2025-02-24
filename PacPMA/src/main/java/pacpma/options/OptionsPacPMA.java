@@ -1232,7 +1232,7 @@ public class OptionsPacPMA {
         case APPROACH_SCENARIO:
             return new ScenarioApproach(logEngineInstance);
         default:
-            throw new UnsupportedOperationException("Unexpected approach");
+            throw new UnsupportedOperationException("Unexpected approach " + approach);
         }
     }
     
@@ -1283,7 +1283,7 @@ public class OptionsPacPMA {
         case LPSOLVER_OCTAVE:
             return new OctaveTool();
         default:
-            throw new UnsupportedOperationException("Unexpected LP solver");
+            throw new UnsupportedOperationException("Unexpected LP solver " + lpsolver);
         }
     }
 
@@ -1318,7 +1318,7 @@ public class OptionsPacPMA {
                     logEngineInstance = new OnfileLogEngine();
                     break;
                 default:
-                    throw new UnsupportedOperationException("Unexpected logger");
+                    throw new UnsupportedOperationException("Unexpected logger " + logEngine);
                 }
             } else {
                 logEngineInstance = new NullLogEngine();
@@ -1355,7 +1355,7 @@ public class OptionsPacPMA {
         case MODELCHECKER_SYNTHETIC_OCTAVE:
             return new SyntheticOctave();
         default:
-            throw new UnsupportedOperationException("Unexpected model checker");
+            throw new UnsupportedOperationException("Unexpected model checker " + modelchecker);
         }
     }
 
