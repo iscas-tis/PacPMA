@@ -251,7 +251,7 @@ public class OptionsPacPMA {
             
     private final static Option option_logFile = 
             Option.builder()
-                .longOpt("logfile")
+                .longOpt("log-file")
                 .hasArg()
                 .argName("filepath")
                 .desc("file where to store the generated logging information; default: " + DEFAULT_LOGFILE)
