@@ -19,7 +19,7 @@
  *****************************************************************************/
 
 /**
- * The DIRECT approach to find minimum.
+ * The DIRECT approach to find minimum/maximum.
  * 
  * @author Andrea Turrini
  *
