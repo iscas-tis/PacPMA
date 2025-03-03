@@ -44,6 +44,7 @@ import pacpma.algebra.function.ExpressionFunction;
 import pacpma.algebra.polynomial.Polynomial;
 import pacpma.approach.Approach;
 import pacpma.approach.direct.DIRECTApproach;
+import pacpma.approach.lipo.LIPOApproach;
 import pacpma.approach.scenario.ScenarioApproach;
 import pacpma.log.OnfileLogEngine;
 import pacpma.log.LogEngine;
@@ -99,10 +100,12 @@ public class OptionsPacPMA {
     
     public final static String APPROACH_SCENARIO = "scenario";
     public final static String APPROACH_DIRECT = "direct";
+    public final static String APPROACH_LIPO = "lipo";
     private final static String DEFAULT_APPROACH = APPROACH_SCENARIO;
     private final static Collection<String> COLLECTION_APPROACH = new HashSet<>();
     static {
         COLLECTION_APPROACH.add(APPROACH_DIRECT);
+        COLLECTION_APPROACH.add(APPROACH_LIPO);
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
@@ -1230,6 +1233,8 @@ public class OptionsPacPMA {
         switch (approach) {
         case APPROACH_DIRECT:
             return new DIRECTApproach(logEngineInstance);
+        case APPROACH_LIPO:
+            return new LIPOApproach(logEngineInstance);
         case APPROACH_SCENARIO:
             return new ScenarioApproach(logEngineInstance);
         default:
