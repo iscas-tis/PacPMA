@@ -264,6 +264,14 @@ public class OptionsPacPMA {
                 .argName("filepath")
                 .desc("file where to store the generated logging information; default: " + DEFAULT_LOGFILE)
                 .build();
+    
+    private final static Option option_logFrequency = 
+            Option.builder()
+                .longOpt("-log-frequency")
+                .hasArg()
+                .argName("frequency")
+                .desc("after how many entries (> 0) the log is automatically flush on file")
+                .build();
 
     private final static Option option_statistics = 
             Option.builder()
@@ -588,6 +596,7 @@ public class OptionsPacPMA {
         options.addOption(option_logEngine);
         options.addOption(option_logLevel);
         options.addOption(option_logFile);
+        options.addOption(option_logFrequency);
         
         options.addOption(option_statistics);
         
@@ -640,6 +649,7 @@ public class OptionsPacPMA {
     private static String logEngine;
     private static int logLevel;
     private static String logFile;
+    private static Integer logFrequency;
     private static boolean useLog;
     
     private static final List<String> parsingErrors = new ArrayList<>(10);
@@ -738,6 +748,17 @@ public class OptionsPacPMA {
                 
                 useLog = logLevel > LogEngine.LEVEL_NONE;
 
+                if (commandline.hasOption(option_logFrequency)) {
+                    try {
+                        logFrequency = Integer.valueOf(commandline.getOptionValue(option_logFrequency));
+                        if (tmpInt < 1) {
+                            parsingErrors.add("The option " + option_logFrequency.getLongOpt() + " must be at least 1");
+                        }
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_logFrequency));
+                    }
+                }
+                
                 logFile = commandline.getOptionValue(option_logFile, DEFAULT_LOGFILE) ;
                 
                 tmpLong = new Random().nextLong();
@@ -1116,6 +1137,13 @@ public class OptionsPacPMA {
      */
     public static String getLogFile() {
         return logFile;
+    }
+    
+    /**
+     * @return the automatic flush frequency
+     */
+    public static Integer getLogFrequency() {
+        return logFrequency;
     }
     
     /**

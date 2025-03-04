@@ -202,9 +202,6 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
             throw new IllegalStateException(message);
         }
 
-        if (OptionsPacPMA.useLogging() && (identifier % 100 == 0)) {
-            logEngineInstance.flush();
-        }
         identifier++;
         return modelCheckerResult;
     }

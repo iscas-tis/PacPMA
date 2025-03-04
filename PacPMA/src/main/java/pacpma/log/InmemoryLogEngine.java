@@ -39,14 +39,21 @@ public class InmemoryLogEngine implements LogEngine {
     private static int logLevel;
     private static String filePath;
     private static boolean isClosed;
+    private static int messageCounter;
     
     private static final StringBuilder log = new StringBuilder();
+    private static final Integer flushFrequency = OptionsPacPMA.getLogFrequency();
     
     @Override
     public void setup(int level, String filepath) {
         logLevel = level;
         filePath = filepath;
         isClosed = false;
+        messageCounter = 0;
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+            bw.write("");
+        } catch (Exception e) {
+        }
         log(LEVEL_INFO, "InmemoryLogEngine initialized");
     }
     
@@ -69,6 +76,12 @@ public class InmemoryLogEngine implements LogEngine {
                 .append(": ")
                 .append(message)
                 .append("\n");
+            
+            messageCounter++;
+            
+            if (flushFrequency != null && messageCounter % flushFrequency == 0) {
+                flush();
+            }
         }
     }
     
@@ -80,8 +93,9 @@ public class InmemoryLogEngine implements LogEngine {
         if (filePath == null) {
             throw new IllegalStateException("InmemoryLogEngine not initialized");
         }
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath, true))) {
             bw.write(log.toString());
+            log.setLength(0);
         } catch (Exception e) {
         }
     }

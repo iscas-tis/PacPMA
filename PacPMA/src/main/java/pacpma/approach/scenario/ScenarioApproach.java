@@ -163,10 +163,6 @@ public class ScenarioApproach implements Approach {
             System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
         }
         
-        if (OptionsPacPMA.useLogging()) {
-            logEngineInstance.flush();
-        }
-
         logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Collecting model checker results");
         for (Map<Integer, List<Constant>> samplesValues : bucketParameterValues) {
             for (Integer identifier : samplesValues.keySet()) {
@@ -175,9 +171,6 @@ public class ScenarioApproach implements Approach {
                 if (modelcheckerResult == null) {
                     System.out.println("No result computed");
                     logEngineInstance.log(LogEngine.LEVEL_ERROR, "No result computed");
-                    if (OptionsPacPMA.useLogging()) {
-                        logEngineInstance.flush();
-                    }
                     return;
                 }
                 if (modelcheckerResult.isInfinite()) {
@@ -185,9 +178,6 @@ public class ScenarioApproach implements Approach {
                     System.out.println("Appromixated function: infinity");
                     logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: not computed");
                     logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: infinity");
-                    if (OptionsPacPMA.useLogging()) {
-                        logEngineInstance.flush();
-                    }
                     return;
                 }
                 Map<Variable, BigDecimal> variablesValues = new HashMap<>();
@@ -231,9 +221,6 @@ public class ScenarioApproach implements Approach {
             System.out.println("Appromixated function: " + templateExpression);
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: " + lambdaValue);
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + templateExpression);
-        }
-        if (OptionsPacPMA.useLogging()) {
-            logEngineInstance.flush();
         }
     } 
 

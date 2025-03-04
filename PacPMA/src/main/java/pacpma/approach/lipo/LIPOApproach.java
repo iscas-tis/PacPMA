@@ -121,10 +121,6 @@ public class LIPOApproach implements Approach {
         
         iterationCounter = 1;
         while (improve()) {
-            if (iterationCounter % 100 == 0) {
-                logEngineInstance.flush();
-            }
-            
             logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: iteration: " + iterationCounter);
             
             Double[] x_prop = new Double[d];
