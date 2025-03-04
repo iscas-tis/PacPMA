@@ -143,6 +143,8 @@ public class OptionsPacPMA {
 
     private final static String DEFAULT_ITERATION_LIMIT = "1000";
     
+    private final static String DEFAULT_EXPLOITATION_LIMIT = "1000";
+
     private final static String DEFAULT_EXPLOITATION_THRESHOLD = "0.5";
     
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
@@ -406,6 +408,14 @@ public class OptionsPacPMA {
                 .desc("maximum number ≥ 0 of iterations in an optimization-based approach; default: " + DEFAULT_ITERATION_LIMIT)
                 .build();
     
+    private final static Option option_exploitation_limit = 
+            Option.builder()
+                .longOpt("exploitation-limit")
+                .argName("int")
+                .hasArg()
+                .desc("maximum number ≥ 0 of explotations in an optimization-based approach; default: " + DEFAULT_EXPLOITATION_LIMIT)
+                .build();
+    
     private final static Option option_exploitation_threshold = 
             Option.builder()
                 .longOpt("exploitation-threshold")
@@ -601,6 +611,7 @@ public class OptionsPacPMA {
         options.addOption(option_consts);
         options.addOption(option_params);
         options.addOption(option_iteration_limit);
+        options.addOption(option_exploitation_limit);
         options.addOption(option_exploitation_threshold);
         options.addOption(option_direct_algorithm);
         options.addOption(option_direct_optimization_direction);
@@ -655,6 +666,7 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
     private static int iterationLimit;
+    private static int exploitationLimit;
     private static double exploitationThreshold;
     private static boolean directOptimizationDirectionMin;
     private static String directAlgorithm = null;
@@ -794,6 +806,16 @@ public class OptionsPacPMA {
                     parsingErrors.add(getInvalidMessage(commandline, option_iteration_limit));
                 }
                 iterationLimit = tmpInt;
+
+                try {
+                    tmpInt = Integer.valueOf(commandline.getOptionValue(option_exploitation_limit, DEFAULT_EXPLOITATION_LIMIT));
+                    if (tmpInt < 0) {
+                        parsingErrors.add("The option " + option_exploitation_limit.getLongOpt() + " must be at least 0");
+                    }
+                } catch (NumberFormatException nfe) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_exploitation_limit));
+                }
+                exploitationLimit = tmpInt;
 
                 try {
                     tmpDouble = Double.valueOf(commandline.getOptionValue(option_exploitation_threshold, DEFAULT_EXPLOITATION_THRESHOLD));
@@ -1188,6 +1210,13 @@ public class OptionsPacPMA {
      */
     public static int getIterationLimit() {
         return iterationLimit;
+    }
+
+    /**
+     * @return the exploitation limit
+     */
+    public static int getExploitationLimit() {
+        return exploitationLimit;
     }
 
     /**
