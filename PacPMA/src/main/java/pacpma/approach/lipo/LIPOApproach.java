@@ -43,21 +43,19 @@ import pacpma.options.OptionsPacPMA;
 public class LIPOApproach implements Approach {
     private static LogEngine logEngineInstance;
     private final Parameter[] parameters;
-    private final int iterationCounterLimit;
     private final double exploitationThreshold;
     private final double exploitationCounterLimit;
     
     private int iterationCounter;
 
     private double valueMax;
-    private double[] coordinatesValueMax = null;
+    private Double[] coordinatesValueMax = null;
     private double valueMaxSecond;
-    private double[] coordinatesValueMaxSecond = null;
+    private Double[] coordinatesValueMaxSecond = null;
 
     public LIPOApproach(LogEngine logEngineInstance) {
         LIPOApproach.logEngineInstance = logEngineInstance;
         parameters = OptionsPacPMA.getParameters().toArray(new Parameter[0]);
-        iterationCounterLimit = OptionsPacPMA.getOptimizationStoppingIterationLimit();
         exploitationThreshold = OptionsPacPMA.getExploitationThreshold();
         exploitationCounterLimit = OptionsPacPMA.getExploitationLimit();
     }
@@ -81,10 +79,10 @@ public class LIPOApproach implements Approach {
         double alpha = 0.01/d;
 
         // preallocate the output arrays
-        double[] y = new double[iterationCounterLimit];
-        double[][] x = new double[iterationCounterLimit][d];
-        double[] loss = new double[iterationCounterLimit];
-        double[] k_arr = new double[iterationCounterLimit];
+        List<Double> y = new ArrayList<>();
+        List<Double[]> x = new ArrayList<>();
+        List<Double> loss = new ArrayList<>();
+        List<Double> k_arr = new ArrayList<>();
 
         // the lower/upper bounds on each dimension
         double[] bound_mins = new double[d];
@@ -97,14 +95,16 @@ public class LIPOApproach implements Approach {
         // initialization with randomly drawn point in domain and k = 0
         double k = 0;
         double k_est = Double.NEGATIVE_INFINITY;
-        double[] u = new double[d];
+        Double[] u = new Double[d];
         for (int i = 0; i < d; i++) {
             u[i] = randomNumberGenerator.nextDouble();
         }
-        coordinatesValueMax = new double[d];
+        coordinatesValueMax = new Double[d];
         for (int i = 0; i < d; i++) {
-            x[0][i] = coordinatesValueMax[i] = u[i] * (bound_maxs[i] - bound_mins[i]) + bound_mins[i];
+            coordinatesValueMax[i] = u[i] * (bound_maxs[i] - bound_mins[i]) + bound_mins[i];
         }
+        x.add(coordinatesValueMax);
+        
         List<Constant> instances = new ArrayList<>(d);
         for (int i = 0; i < d; i++) {
             instances.add(new Constant(parameters[i].getName(), String.valueOf(coordinatesValueMax[i])));
@@ -114,18 +114,18 @@ public class LIPOApproach implements Approach {
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: model checking result is infinite for instance " + instances.toString());
             return;
         } else {
-            y[0] = result.getResult().doubleValue();
+            y.add(result.getResult().doubleValue());
         }
-        k_arr[0] = k;
+        k_arr.add(k);
         
-        valueMax = y[0];
+        valueMax = y.get(0);
         int tMax = 0;
         
         iterationCounter = 1;
         while (improve()) {
             logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: iteration: " + iterationCounter);
             
-            double[] x_prop = new double[d];
+            Double[] x_prop = new Double[d];
             for (int i = 0; i < d; i++) {
                 u[i] = randomNumberGenerator.nextDouble();
             }
@@ -150,9 +150,8 @@ public class LIPOApproach implements Approach {
             } else {
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: no exploiting in this iteration");
             }
-            for (int i = 0; i < d; i++) {
-                x[iterationCounter][i] = x_prop[i];
-            }
+            x.add(x_prop);
+            
             instances = new ArrayList<>(d);
             for (int i = 0; i < d; i++) {
                 instances.add(new Constant(parameters[i].getName(), String.valueOf(x_prop[i])));
@@ -161,29 +160,30 @@ public class LIPOApproach implements Approach {
             if (result.isInfinite()) {
                 logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: model checking result is infinite for instance " + instances.toString());
                 return;
-            } else {
-                y[iterationCounter] = result.getResult().doubleValue();
-                if (valueMax < y[iterationCounter]) {
-                    valueMaxSecond = valueMax;
-                    valueMax = y[iterationCounter];
-                    coordinatesValueMaxSecond = coordinatesValueMax;
-                    coordinatesValueMax = x_prop;
-                    tMax = iterationCounter;
-                }
             }
-            loss[iterationCounter] = valueMax;
+            double yValue = result.getResult().doubleValue();
+            y.add(yValue);
+            if (valueMax < yValue) {
+                valueMaxSecond = valueMax;
+                valueMax = yValue;
+                coordinatesValueMaxSecond = coordinatesValueMax;
+                coordinatesValueMax = x_prop;
+                tMax = iterationCounter;
+            }
+            loss.add(valueMax);
             
             double[] new_x_dist = new double[iterationCounter];
             for (int i = 0; i < iterationCounter; i++) {
                 double sum = 0;
+                Double[] x_prev = x.get(i);
                 for (int j = 0; j < d; j++) {
-                    sum = sum + Math.pow(x[i][j] - x[iterationCounter][j], 2);
+                    sum = sum + Math.pow(x_prev[j] - x_prop[j], 2);
                 }
                 new_x_dist[i] = Math.sqrt(sum);
             }
             double[] new_y_dist = new double[iterationCounter];
             for (int i = 0; i < iterationCounter; i++) {
-                new_y_dist[i] = Math.abs(y[i] - y[iterationCounter]);
+                new_y_dist[i] = Math.abs(y.get(i) - yValue);
             }
             for (int i = 0; i < iterationCounter; i++) {
                 double div = new_y_dist[i]/new_x_dist[i];
@@ -194,7 +194,7 @@ public class LIPOApproach implements Approach {
             double i_t = Math.ceil(Math.log(k_est)/Math.log(1+alpha));
             k = Math.pow(1+alpha, i_t);
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: Lipschitz constant estimate: " + k);
-            k_arr[iterationCounter] = k;
+            k_arr.add(k);
             
             iterationCounter++;
         }
@@ -212,17 +212,25 @@ public class LIPOApproach implements Approach {
     }
     
     private boolean improve() {
-        return iterationCounter < iterationCounterLimit;
+        boolean canImprove = true;
+        
+        Integer icl = OptionsPacPMA.getOptimizationStoppingIterationLimit();
+        if (icl != null) {
+            canImprove &= iterationCounter < icl;
+        }
+        
+        return canImprove;
     }
 
-    private double upper_bound(int limit, double[] x_prop, double[] y, double[][] x, double k) {
+    private double upper_bound(int limit, Double[] x_prop, List<Double> y, List<Double[]> x, double k) {
         double min_value = Double.POSITIVE_INFINITY;
         for (int i = 0; i < limit; i++) {
             double norm2 = 0;
+            Double[] xCoords = x.get(i);
             for (int j = 0; j < x_prop.length; j++) {
-                norm2 = norm2 + Math.pow(x_prop[j] - x[i][j], 2);
+                norm2 = norm2 + Math.pow(x_prop[j] - xCoords[j], 2);
             }
-            double cur_value = y[i] + k *  Math.sqrt(norm2);
+            double cur_value = y.get(i) + k *  Math.sqrt(norm2);
             if (min_value > cur_value) {
                 min_value = cur_value;
             }
