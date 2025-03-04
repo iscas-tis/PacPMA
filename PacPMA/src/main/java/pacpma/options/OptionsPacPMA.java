@@ -141,6 +141,8 @@ public class OptionsPacPMA {
     }
     private final static String DEFAULT_DIRECT_OPTIMIZATION_DIRECTION = DIRECT_OPTIMIZATION_MIN;
 
+    private final static String DEFAULT_ITERATION_LIMIT = "1000";
+    
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
     public final static String LPSOLVER_MATLAB = "matlab";
     public final static String LPSOLVER_MATLAB_FILE = "matlab-file";
@@ -394,6 +396,14 @@ public class OptionsPacPMA {
                 .desc("intervals for the parameters, with l < u being decimal numbers")
                 .build();
     
+    private final static Option option_iteration_limit = 
+            Option.builder()
+                .longOpt("iteration-limit")
+                .argName("int")
+                .hasArg()
+                .desc("maximum number ≥ 0 of iterations in an optimization-based approach; default: " + DEFAULT_ITERATION_LIMIT)
+                .build();
+    
     private final static Option option_direct_algorithm = 
             Option.builder()
                 .longOpt("direct-algorithm")
@@ -580,6 +590,7 @@ public class OptionsPacPMA {
         options.addOption(option_property);
         options.addOption(option_consts);
         options.addOption(option_params);
+        options.addOption(option_iteration_limit);
         options.addOption(option_direct_algorithm);
         options.addOption(option_direct_optimization_direction);
         options.addOption(option_direct_stopping_value_absolute);
@@ -632,6 +643,7 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverPrecision;
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
+    private static int iterationLimit;
     private static boolean directOptimizationDirectionMin;
     private static String directAlgorithm = null;
     private static Double directStoppingValueAbsolute = null;
@@ -760,6 +772,16 @@ public class OptionsPacPMA {
                     }
                 }
                 
+                try {
+                    tmpInt = Integer.valueOf(commandline.getOptionValue(option_iteration_limit, DEFAULT_ITERATION_LIMIT));
+                    if (tmpInt < 0) {
+                        parsingErrors.add("The option " + option_iteration_limit.getLongOpt() + " must be at least 0");
+                    }
+                } catch (NumberFormatException nfe) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_iteration_limit));
+                }
+                iterationLimit = tmpInt;
+
                 directAlgorithm = commandline.getOptionValue(option_direct_algorithm, DEFAULT_DIRECT_ALGORITHM);
                 if (!COLLECTION_DIRECT_ALGORITHM.contains(directAlgorithm)) {
                     parsingErrors.add(getInvalidMessage(commandline, option_direct_algorithm));
@@ -1138,6 +1160,13 @@ public class OptionsPacPMA {
         return lambdaInfinite;
     }
 
+    /**
+     * @return the maximum number of iterations
+     */
+    public static int getIterationLimit() {
+        return iterationLimit;
+    }
+    
     /**
      * @return whether the DIRECT optimization direction is minimize
      */
