@@ -143,6 +143,8 @@ public class OptionsPacPMA {
 
     private final static String DEFAULT_ITERATION_LIMIT = "1000";
     
+    private final static String DEFAULT_EXPLOITATION_THRESHOLD = "0.5";
+    
     public final static String LPSOLVER_LPSOLVE = "lpsolve";
     public final static String LPSOLVER_MATLAB = "matlab";
     public final static String LPSOLVER_MATLAB_FILE = "matlab-file";
@@ -404,6 +406,14 @@ public class OptionsPacPMA {
                 .desc("maximum number ≥ 0 of iterations in an optimization-based approach; default: " + DEFAULT_ITERATION_LIMIT)
                 .build();
     
+    private final static Option option_exploitation_threshold = 
+            Option.builder()
+                .longOpt("exploitation-threshold")
+                .argName("real")
+                .hasArg()
+                .desc("exploitation threshold ≥ 0 to enable exploitation in optimization-based approaches using exploitation; default: " + DEFAULT_EXPLOITATION_THRESHOLD)
+                .build();
+    
     private final static Option option_direct_algorithm = 
             Option.builder()
                 .longOpt("direct-algorithm")
@@ -591,6 +601,7 @@ public class OptionsPacPMA {
         options.addOption(option_consts);
         options.addOption(option_params);
         options.addOption(option_iteration_limit);
+        options.addOption(option_exploitation_threshold);
         options.addOption(option_direct_algorithm);
         options.addOption(option_direct_optimization_direction);
         options.addOption(option_direct_stopping_value_absolute);
@@ -644,6 +655,7 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
     private static int iterationLimit;
+    private static double exploitationThreshold;
     private static boolean directOptimizationDirectionMin;
     private static String directAlgorithm = null;
     private static Double directStoppingValueAbsolute = null;
@@ -688,6 +700,7 @@ public class OptionsPacPMA {
                 int tmpInt = 0;
                 BigDecimal tmpBD = null;
                 long tmpLong = 0;
+                double tmpDouble = 0;
 
                 printStatistics = commandline.hasOption(option_statistics);
                 
@@ -782,6 +795,16 @@ public class OptionsPacPMA {
                 }
                 iterationLimit = tmpInt;
 
+                try {
+                    tmpDouble = Double.valueOf(commandline.getOptionValue(option_exploitation_threshold, DEFAULT_EXPLOITATION_THRESHOLD));
+                    if (tmpInt < 0) {
+                        parsingErrors.add("The option " + option_exploitation_threshold.getLongOpt() + " must be at least 0");
+                    }
+                } catch (NumberFormatException nfe) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_exploitation_threshold));
+                }
+                exploitationThreshold = tmpDouble;
+                
                 directAlgorithm = commandline.getOptionValue(option_direct_algorithm, DEFAULT_DIRECT_ALGORITHM);
                 if (!COLLECTION_DIRECT_ALGORITHM.contains(directAlgorithm)) {
                     parsingErrors.add(getInvalidMessage(commandline, option_direct_algorithm));
@@ -1165,6 +1188,13 @@ public class OptionsPacPMA {
      */
     public static int getIterationLimit() {
         return iterationLimit;
+    }
+
+    /**
+     * @return the exploitation threshold
+     */
+    public static double getExploitationThreshold() {
+        return exploitationThreshold;
     }
     
     /**
