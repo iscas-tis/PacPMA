@@ -101,13 +101,13 @@ public class LIPOApproach implements Approach {
         for (int i = 0; i < d; i++) {
             u[i] = randomNumberGenerator.nextDouble();
         }
-        double[] x_prop = new double[d];
+        coordinatesValueMax = new double[d];
         for (int i = 0; i < d; i++) {
-            x[0][i] = x_prop[i] = u[i] * (bound_maxs[i] - bound_mins[i]) + bound_mins[i];
+            x[0][i] = coordinatesValueMax[i] = u[i] * (bound_maxs[i] - bound_mins[i]) + bound_mins[i];
         }
         List<Constant> instances = new ArrayList<>(d);
         for (int i = 0; i < d; i++) {
-            instances.add(new Constant(parameters[i].getName(), String.valueOf(x_prop[i])));
+            instances.add(new Constant(parameters[i].getName(), String.valueOf(coordinatesValueMax[i])));
         }
         ModelCheckerResult result = modelChecker.check(instances);
         if (result.isInfinite()) {
@@ -118,12 +118,14 @@ public class LIPOApproach implements Approach {
         }
         k_arr[0] = k;
         
-        double yMax = y[0];
+        valueMax = y[0];
         int tMax = 0;
         
+        iterationCounter = 1;
         while (improve()) {
             logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: iteration: " + iterationCounter);
             
+            double[] x_prop = new double[d];
             for (int i = 0; i < d; i++) {
                 u[i] = randomNumberGenerator.nextDouble();
             }
@@ -135,7 +137,7 @@ public class LIPOApproach implements Approach {
                 logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: starting exploiting");
                 // exploiting - ensure we're drawing from potential maximizers
                 int iters = 0;
-                while (iters < exploitationCounterLimit && upper_bound(iterationCounter, x_prop, y, x, k) < yMax) {
+                while (iters < exploitationCounterLimit && upper_bound(iterationCounter, x_prop, y, x, k) < valueMax) {
                     for (int i = 0; i < d; i++) {
                         u[i] = randomNumberGenerator.nextDouble();
                     }
@@ -161,12 +163,15 @@ public class LIPOApproach implements Approach {
                 return;
             } else {
                 y[iterationCounter] = result.getResult().doubleValue();
-                if (yMax < y[iterationCounter]) {
-                    yMax = y[iterationCounter];
+                if (valueMax < y[iterationCounter]) {
+                    valueMaxSecond = valueMax;
+                    valueMax = y[iterationCounter];
+                    coordinatesValueMaxSecond = coordinatesValueMax;
+                    coordinatesValueMax = x_prop;
                     tMax = iterationCounter;
                 }
             }
-            loss[iterationCounter] = yMax;
+            loss[iterationCounter] = valueMax;
             
             double[] new_x_dist = new double[iterationCounter];
             for (int i = 0; i < iterationCounter; i++) {
@@ -198,10 +203,10 @@ public class LIPOApproach implements Approach {
         
         List<Constant> optParameters = new ArrayList<>(d);
         for (int i = 0; i < d; i++) {
-            optParameters.add(new Constant(parameters[i].getName(), Double.toString(x[tMax][i])));
+            optParameters.add(new Constant(parameters[i].getName(), Double.toString(coordinatesValueMax[i])));
         }
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: analysis completed; computed optimal value " + yMax + " at " + optParameters + " during iteration " + tMax);
-        System.out.println("Optimal value: " + yMax);
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "LIPOApproach: analysis completed; computed optimal value " + valueMax + " at " + optParameters + " during iteration " + tMax);
+        System.out.println("Optimal value: " + valueMax);
         System.out.println("Coordinates of optimal value: " + optParameters);
         System.out.println("Iteration of optimal value: " + tMax);      
     }
