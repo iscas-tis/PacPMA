@@ -23,7 +23,6 @@ package pacpma.approach.direct;
 import java.util.ArrayList;
 import java.util.List;
 
-import nlopt.Algorithm;
 import nlopt.DoubleVector;
 import nlopt.Opt;
 import nlopt.Result;
