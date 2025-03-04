@@ -141,8 +141,6 @@ public class OptionsPacPMA {
     }
     private final static String DEFAULT_OPTIMIZATION_DIRECTION = OPTIMIZATION_DIRECTION_MIN;
 
-    private final static String DEFAULT_ITERATION_LIMIT = "1000";
-    
     private final static String DEFAULT_EXPLOITATION_LIMIT = "1000";
 
     private final static String DEFAULT_EXPLOITATION_THRESHOLD = "0.5";
@@ -400,14 +398,6 @@ public class OptionsPacPMA {
                 .desc("analysis approach; default: " + DEFAULT_APPROACH)
                 .build();
     
-    private final static Option option_iteration_limit = 
-            Option.builder()
-                .longOpt("iteration-limit")
-                .argName("int")
-                .hasArg()
-                .desc("maximum number ≥ 0 of iterations in an optimization-based approach; default: " + DEFAULT_ITERATION_LIMIT)
-                .build();
-    
     private final static Option option_exploitation_limit = 
             Option.builder()
                 .longOpt("exploitation-limit")
@@ -438,6 +428,14 @@ public class OptionsPacPMA {
                 .argName(getAlternatives(COLLECTION_OPTIMIZATION_DIRECTION))
                 .hasArg()
                 .desc("optimization direction; default: " + DEFAULT_OPTIMIZATION_DIRECTION)
+                .build();
+    
+    private final static Option option_optimization_stopping_iteration_limit = 
+            Option.builder()
+                .longOpt("optimization-stopping-iteration-limit")
+                .argName("int")
+                .hasArg()
+                .desc("optimization stopping threshold based on the maximum number of iterations in an optimization-based approach")
                 .build();
     
     private final static Option option_optimization_stopping_value_absolute = 
@@ -610,11 +608,11 @@ public class OptionsPacPMA {
         options.addOption(option_consts);
         options.addOption(option_params);
         options.addOption(option_approach);
-        options.addOption(option_iteration_limit);
         options.addOption(option_exploitation_limit);
         options.addOption(option_exploitation_threshold);
         options.addOption(option_direct_algorithm);
         options.addOption(option_optimization_direction);
+        options.addOption(option_optimization_stopping_iteration_limit);
         options.addOption(option_optimization_stopping_value_absolute);
         options.addOption(option_optimization_stopping_value_relative);
         options.addOption(option_optimization_stopping_parameters_absolute);
@@ -665,10 +663,10 @@ public class OptionsPacPMA {
     private static BigDecimal lpsolverPrecision;
     private static BigDecimal lpsolverFactor;
     private static int expressionPrecision;
-    private static int iterationLimit;
     private static int exploitationLimit;
     private static double exploitationThreshold;
     private static boolean optimizationDirectionMin;
+    private static Integer optimizationStoppingIterationLimit = null;
     private static Double optimizationStoppingValueAbsolute = null;
     private static Double optimizationStoppingValueRelative = null;
     private static Double optimizationStoppingParametersAbsolute = null;
@@ -798,16 +796,6 @@ public class OptionsPacPMA {
                 }
                 
                 try {
-                    tmpInt = Integer.valueOf(commandline.getOptionValue(option_iteration_limit, DEFAULT_ITERATION_LIMIT));
-                    if (tmpInt < 0) {
-                        parsingErrors.add("The option " + option_iteration_limit.getLongOpt() + " must be at least 0");
-                    }
-                } catch (NumberFormatException nfe) {
-                    parsingErrors.add(getInvalidMessage(commandline, option_iteration_limit));
-                }
-                iterationLimit = tmpInt;
-
-                try {
                     tmpInt = Integer.valueOf(commandline.getOptionValue(option_exploitation_limit, DEFAULT_EXPLOITATION_LIMIT));
                     if (tmpInt < 0) {
                         parsingErrors.add("The option " + option_exploitation_limit.getLongOpt() + " must be at least 0");
@@ -844,6 +832,15 @@ public class OptionsPacPMA {
                 }
                 
                 boolean has_stopping_criterion = false;
+
+                if (commandline.hasOption(option_optimization_stopping_iteration_limit)) {
+                    try {
+                        optimizationStoppingIterationLimit = Integer.valueOf(commandline.getOptionValue(option_optimization_stopping_iteration_limit));
+                        has_stopping_criterion = true;
+                    } catch (NumberFormatException nfe) {
+                        parsingErrors.add(getInvalidMessage(commandline, option_optimization_stopping_iteration_limit));
+                    }
+                }
 
                 if (commandline.hasOption(option_optimization_stopping_value_relative)) {
                     try {
@@ -1206,13 +1203,6 @@ public class OptionsPacPMA {
     }
 
     /**
-     * @return the maximum number of iterations
-     */
-    public static int getIterationLimit() {
-        return iterationLimit;
-    }
-
-    /**
      * @return the exploitation limit
      */
     public static int getExploitationLimit() {
@@ -1234,28 +1224,35 @@ public class OptionsPacPMA {
     }
     
     /**
-     * @return the optimization stopping threshold based on value absolute variation
+     * @return the optimization stopping threshold based on maximum number of iterations; {@code null} if not set
+     */
+    public static Integer getOptimizationStoppingIterationLimit() {
+        return optimizationStoppingIterationLimit;
+    }
+
+    /**
+     * @return the optimization stopping threshold based on value absolute variation; {@code null} if not set
      */
     public static Double getOptimizationStoppingValueAbsolute() {
         return optimizationStoppingValueAbsolute;
     }
     
     /**
-     * @return the optimization stopping threshold based on value relative variation
+     * @return the optimization stopping threshold based on value relative variation; {@code null} if not set
      */
     public static Double getOptimizationStoppingValueRelative() {
         return optimizationStoppingValueRelative;
     }
     
     /**
-     * @return the optimization stopping threshold based on parameters absolute variation
+     * @return the optimization stopping threshold based on parameters absolute variation; {@code null} if not set
      */
     public static Double getOptimizationStoppingParametersAbsolute() {
         return optimizationStoppingParametersAbsolute;
     }
     
     /**
-     * @return the optimization stopping threshold based on parameters relative variation
+     * @return the optimization stopping threshold based on parameters relative variation; {@code null} if not set
      */
     public static Double getOptimizationStoppingParametersRelative() {
         return optimizationStoppingParametersRelative;

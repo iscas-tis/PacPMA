@@ -57,7 +57,7 @@ public class LIPOApproach implements Approach {
     public LIPOApproach(LogEngine logEngineInstance) {
         LIPOApproach.logEngineInstance = logEngineInstance;
         parameters = OptionsPacPMA.getParameters().toArray(new Parameter[0]);
-        iterationCounterLimit = OptionsPacPMA.getIterationLimit();
+        iterationCounterLimit = OptionsPacPMA.getOptimizationStoppingIterationLimit();
         exploitationThreshold = OptionsPacPMA.getExploitationThreshold();
         exploitationCounterLimit = OptionsPacPMA.getExploitationLimit();
     }
