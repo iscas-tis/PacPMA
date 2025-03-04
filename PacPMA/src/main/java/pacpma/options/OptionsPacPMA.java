@@ -1317,7 +1317,7 @@ public class OptionsPacPMA {
      * 
      * @return an instance of the chosen LP solver
      */
-    public static Approach getAppraochInstance(LogEngine logEngineInstance) {
+    public static Approach getApproachInstance(LogEngine logEngineInstance) {
         switch (approach) {
         case APPROACH_DIRECT:
             return new DIRECTApproach(logEngineInstance);

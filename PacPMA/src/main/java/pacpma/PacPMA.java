@@ -34,7 +34,7 @@ public final class PacPMA {
         if (OptionsPacPMA.parseOptions(args)) {
             LogEngine logEngineInstance = OptionsPacPMA.getLogEngineInstance();
             logEngineInstance.setup(OptionsPacPMA.getLogLevel(), OptionsPacPMA.getLogFile());
-            Approach approach = OptionsPacPMA.getAppraochInstance(logEngineInstance);
+            Approach approach = OptionsPacPMA.getApproachInstance(logEngineInstance);
             approach.doAnalysis();
             logEngineInstance.close();
         }
