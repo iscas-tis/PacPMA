@@ -130,16 +130,16 @@ public class OptionsPacPMA {
         COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_ORIG);
     }
    
-    private final static String DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE = "1e-8";
+    private final static String DEFAULT_OPTIMIZATION_STOPPING_VALUE_ABSOLUTE = "1e-8";
     
-    private final static String DIRECT_OPTIMIZATION_MIN = "min";
-    private final static String DIRECT_OPTIMIZATION_MAX = "max";
-    private final static Collection<String> COLLECTION_DIRECT_OPTIMIZATION = new HashSet<>();
+    private final static String OPTIMIZATION_DIRECTION_MIN = "min";
+    private final static String OPTIMIZATION_DIRECTION_MAX = "max";
+    private final static Collection<String> COLLECTION_OPTIMIZATION_DIRECTION = new HashSet<>();
     static {
-        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MAX);
-        COLLECTION_DIRECT_OPTIMIZATION.add(DIRECT_OPTIMIZATION_MIN);
+        COLLECTION_OPTIMIZATION_DIRECTION.add(OPTIMIZATION_DIRECTION_MAX);
+        COLLECTION_OPTIMIZATION_DIRECTION.add(OPTIMIZATION_DIRECTION_MIN);
     }
-    private final static String DEFAULT_DIRECT_OPTIMIZATION_DIRECTION = DIRECT_OPTIMIZATION_MIN;
+    private final static String DEFAULT_OPTIMIZATION_DIRECTION = OPTIMIZATION_DIRECTION_MIN;
 
     private final static String DEFAULT_ITERATION_LIMIT = "1000";
     
@@ -360,14 +360,6 @@ public class OptionsPacPMA {
                 .desc("input file with the model to analyze")
                 .build();
 
-    private final static Option option_approach = 
-            Option.builder("a")
-                .longOpt("approach")
-                .argName(getAlternatives(COLLECTION_APPROACH))
-                .hasArg()
-                .desc("analysis approach; default: " + DEFAULT_APPROACH)
-                .build();
-    
     private final static Option option_modelType = 
             Option.builder("t")
                 .longOpt("model-type")
@@ -398,6 +390,14 @@ public class OptionsPacPMA {
                 .argName("name=l:u(,name=l:u)*")
                 .hasArg()
                 .desc("intervals for the parameters, with l < u being decimal numbers")
+                .build();
+    
+    private final static Option option_approach = 
+            Option.builder("a")
+                .longOpt("approach")
+                .argName(getAlternatives(COLLECTION_APPROACH))
+                .hasArg()
+                .desc("analysis approach; default: " + DEFAULT_APPROACH)
                 .build();
     
     private final static Option option_iteration_limit = 
@@ -432,44 +432,44 @@ public class OptionsPacPMA {
                 .desc("underlying DIRECT algorithm; default: " + DEFAULT_DIRECT_ALGORITHM + ". For details, see https://https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#direct-and-direct-l")
                 .build();
     
-    private final static Option option_direct_optimization_direction = 
+    private final static Option option_optimization_direction = 
             Option.builder()
-                .longOpt("direct-optimization-direction")
-                .argName(getAlternatives(COLLECTION_DIRECT_OPTIMIZATION))
+                .longOpt("optimization-direction")
+                .argName(getAlternatives(COLLECTION_OPTIMIZATION_DIRECTION))
                 .hasArg()
-                .desc("DIRECT optimization direction; default: " + DEFAULT_DIRECT_OPTIMIZATION_DIRECTION)
+                .desc("optimization direction; default: " + DEFAULT_OPTIMIZATION_DIRECTION)
                 .build();
     
-    private final static Option option_direct_stopping_value_absolute = 
+    private final static Option option_optimization_stopping_value_absolute = 
             Option.builder()
-                .longOpt("direct-stopping-value-absolute")
+                .longOpt("optimization-stopping-value-absolute")
                 .argName("real")
                 .hasArg()
-                .desc("DIRECT stopping threshold based on the absolute variation of the computed value between two successive optimization steps; if no other stopping criterion is used, a default of " + DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE + " is used")
+                .desc("optimization stopping threshold based on the absolute variation of the computed value between two successive optimization steps; if no other stopping criterion is used, a default of " + DEFAULT_OPTIMIZATION_STOPPING_VALUE_ABSOLUTE + " is used")
                 .build();
     
-    private final static Option option_direct_stopping_value_relative = 
+    private final static Option option_optimization_stopping_value_relative = 
             Option.builder()
-                .longOpt("direct-stopping-value-relative")
+                .longOpt("optimization-stopping-value-relative")
                 .argName("real")
                 .hasArg()
-                .desc("DIRECT stopping threshold based on the relative variation of the computed value between two successive optimization steps")
+                .desc("optimization stopping threshold based on the relative variation of the computed value between two successive optimization steps")
                 .build();
     
-    private final static Option option_direct_stopping_parameters_absolute = 
+    private final static Option option_optimization_stopping_parameters_absolute = 
             Option.builder()
-                .longOpt("direct-stopping-parameters-absolute")
+                .longOpt("optimization-stopping-parameters-absolute")
                 .argName("real")
                 .hasArg()
-                .desc("DIRECT stopping threshold based on the absolute variation of the L2 norm of the parameters between two successive optimization steps")
+                .desc("optimization stopping threshold based on the absolute variation of the L2 norm of the parameters between two successive optimization steps")
                 .build();
     
-    private final static Option option_direct_stopping_parameters_relative = 
+    private final static Option option_optimization_stopping_parameters_relative = 
             Option.builder()
-                .longOpt("direct-stopping-parameters-relative")
+                .longOpt("optimization-stopping-parameters-relative")
                 .argName("real")
                 .hasArg()
-                .desc("DIRECT stopping threshold based on the relative variation of the L2 norm of the parameters between two successive optimization steps")
+                .desc("optimization stopping threshold based on the relative variation of the L2 norm of the parameters between two successive optimization steps")
                 .build();
     
     private final static Option option_expression_precision = 
@@ -604,21 +604,21 @@ public class OptionsPacPMA {
         options.addOption(option_lambda);
         options.addOption(option_epsilon);
         options.addOption(option_eta);
-        options.addOption(option_approach);
         options.addOption(option_modelFile);
         options.addOption(option_modelType);
         options.addOption(option_property);
         options.addOption(option_consts);
         options.addOption(option_params);
+        options.addOption(option_approach);
         options.addOption(option_iteration_limit);
         options.addOption(option_exploitation_limit);
         options.addOption(option_exploitation_threshold);
         options.addOption(option_direct_algorithm);
-        options.addOption(option_direct_optimization_direction);
-        options.addOption(option_direct_stopping_value_absolute);
-        options.addOption(option_direct_stopping_value_relative);
-        options.addOption(option_direct_stopping_parameters_absolute);
-        options.addOption(option_direct_stopping_parameters_relative);
+        options.addOption(option_optimization_direction);
+        options.addOption(option_optimization_stopping_value_absolute);
+        options.addOption(option_optimization_stopping_value_relative);
+        options.addOption(option_optimization_stopping_parameters_absolute);
+        options.addOption(option_optimization_stopping_parameters_relative);
         options.addOption(option_lpsolver);
         options.addOption(option_lpsolver_precision);
         options.addOption(option_lpsolver_scaling_factor);
@@ -668,12 +668,12 @@ public class OptionsPacPMA {
     private static int iterationLimit;
     private static int exploitationLimit;
     private static double exploitationThreshold;
-    private static boolean directOptimizationDirectionMin;
+    private static boolean optimizationDirectionMin;
+    private static Double optimizationStoppingValueAbsolute = null;
+    private static Double optimizationStoppingValueRelative = null;
+    private static Double optimizationStoppingParametersAbsolute = null;
+    private static Double optimizationStoppingParametersRelative = null;
     private static String directAlgorithm = null;
-    private static Double directStoppingValueAbsolute = null;
-    private static Double directStoppingValueRelative = null;
-    private static Double directStoppingParametersAbsolute = null;
-    private static Double directStoppingParametersRelative = null;
     private static String modelchecker;
     private static String modelcheckerPath;
     private static List<String> modelcheckerOptions;
@@ -832,56 +832,56 @@ public class OptionsPacPMA {
                     parsingErrors.add(getInvalidMessage(commandline, option_direct_algorithm));
                 }
                 
-                switch (commandline.getOptionValue(option_direct_optimization_direction, DEFAULT_DIRECT_OPTIMIZATION_DIRECTION)) {
-                case DIRECT_OPTIMIZATION_MIN:
-                    directOptimizationDirectionMin = true;
+                switch (commandline.getOptionValue(option_optimization_direction, DEFAULT_OPTIMIZATION_DIRECTION)) {
+                case OPTIMIZATION_DIRECTION_MIN:
+                    optimizationDirectionMin = true;
                     break;
-                case DIRECT_OPTIMIZATION_MAX:
-                    directOptimizationDirectionMin = false;
+                case OPTIMIZATION_DIRECTION_MAX:
+                    optimizationDirectionMin = false;
                     break;
                 default:
-                    parsingErrors.add(getInvalidMessage(commandline, option_direct_optimization_direction)); 
+                    parsingErrors.add(getInvalidMessage(commandline, option_optimization_direction)); 
                 }
                 
                 boolean has_stopping_criterion = false;
 
-                if (commandline.hasOption(option_direct_stopping_value_relative)) {
+                if (commandline.hasOption(option_optimization_stopping_value_relative)) {
                     try {
-                        directStoppingValueRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_relative));
+                        optimizationStoppingValueRelative = Double.valueOf(commandline.getOptionValue(option_optimization_stopping_value_relative));
                         has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
-                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_relative));
+                        parsingErrors.add(getInvalidMessage(commandline, option_optimization_stopping_value_relative));
                     }
                 }
 
-                if (commandline.hasOption(option_direct_stopping_parameters_absolute)) {
+                if (commandline.hasOption(option_optimization_stopping_parameters_absolute)) {
                     try {
-                        directStoppingParametersAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_absolute));
+                        optimizationStoppingParametersAbsolute = Double.valueOf(commandline.getOptionValue(option_optimization_stopping_parameters_absolute));
                         has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
-                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_absolute));
+                        parsingErrors.add(getInvalidMessage(commandline, option_optimization_stopping_parameters_absolute));
                     }
                 }
 
-                if (commandline.hasOption(option_direct_stopping_parameters_relative)) {
+                if (commandline.hasOption(option_optimization_stopping_parameters_relative)) {
                     try {
-                        directStoppingParametersRelative = Double.valueOf(commandline.getOptionValue(option_direct_stopping_parameters_relative));
+                        optimizationStoppingParametersRelative = Double.valueOf(commandline.getOptionValue(option_optimization_stopping_parameters_relative));
                         has_stopping_criterion = true;
                     } catch (NumberFormatException nfe) {
-                        parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_parameters_relative));
+                        parsingErrors.add(getInvalidMessage(commandline, option_optimization_stopping_parameters_relative));
                     }
                 }
 
                 try {
                     if (has_stopping_criterion) {
-                        if (commandline.hasOption(option_direct_stopping_value_absolute)) {
-                            directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute));
+                        if (commandline.hasOption(option_optimization_stopping_value_absolute)) {
+                            optimizationStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_optimization_stopping_value_absolute));
                         } 
                     } else {
-                        directStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_direct_stopping_value_absolute, DEFAULT_DIRECT_STOPPING_VALUE_ABSOLUTE));
+                        optimizationStoppingValueAbsolute = Double.valueOf(commandline.getOptionValue(option_optimization_stopping_value_absolute, DEFAULT_OPTIMIZATION_STOPPING_VALUE_ABSOLUTE));
                     }
                 } catch (NumberFormatException nfe) {
-                    parsingErrors.add(getInvalidMessage(commandline, option_direct_stopping_value_absolute));
+                    parsingErrors.add(getInvalidMessage(commandline, option_optimization_stopping_value_absolute));
                 }
 
                 if (commandline.hasOption(option_modelFile)) {
@@ -1227,38 +1227,38 @@ public class OptionsPacPMA {
     }
     
     /**
-     * @return whether the DIRECT optimization direction is minimize
+     * @return whether the optimization direction is minimize
      */
-    public static boolean isDirectOptimizationDirectionMin() {
-        return directOptimizationDirectionMin;
+    public static boolean isOptimizationDirectionMin() {
+        return optimizationDirectionMin;
     }
     
     /**
-     * @return the DIRECT stopping threshold based on value absolute variation
+     * @return the optimization stopping threshold based on value absolute variation
      */
-    public static Double getDirectStoppingValueAbsolute() {
-        return directStoppingValueAbsolute;
+    public static Double getOptimizationStoppingValueAbsolute() {
+        return optimizationStoppingValueAbsolute;
     }
     
     /**
-     * @return the DIRECT stopping threshold based on value relative variation
+     * @return the optimization stopping threshold based on value relative variation
      */
-    public static Double getDirectStoppingValueRelative() {
-        return directStoppingValueRelative;
+    public static Double getOptimizationStoppingValueRelative() {
+        return optimizationStoppingValueRelative;
     }
     
     /**
-     * @return the DIRECT stopping threshold based on parameters absolute variation
+     * @return the optimization stopping threshold based on parameters absolute variation
      */
-    public static Double getDirectStoppingParametersAbsolute() {
-        return directStoppingParametersAbsolute;
+    public static Double getOptimizationStoppingParametersAbsolute() {
+        return optimizationStoppingParametersAbsolute;
     }
     
     /**
-     * @return the DIRECT stopping threshold based on parameters relative variation
+     * @return the optimization stopping threshold based on parameters relative variation
      */
-    public static Double getDirectStoppingParametersRelative() {
-        return directStoppingParametersRelative;
+    public static Double getOptimizationStoppingParametersRelative() {
+        return optimizationStoppingParametersRelative;
     }
     
    /**
