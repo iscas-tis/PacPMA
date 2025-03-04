@@ -245,7 +245,7 @@ public class LIPOApproach implements Approach {
     private double upper_bound(int limit, Double[] x_prop, List<Double> y, List<Double[]> x, double k) {
         double min_value = Double.POSITIVE_INFINITY;
         for (int i = 0; i < limit; i++) {
-            double cur_value = y.get(i) + k *  norm(x.get(i), x_prop);
+            double cur_value = y.get(i) + k * norm(x.get(i), x_prop);
             if (min_value > cur_value) {
                 min_value = cur_value;
             }
