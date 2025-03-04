@@ -112,9 +112,8 @@ public class LIPOApproach implements Approach {
         if (result.isInfinite()) {
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: model checking result is infinite for instance " + instances.toString());
             return;
-        } else {
-            y.add(result.getResult().doubleValue());
         }
+        y.add(optimalValue(result.getResult().doubleValue()));
         k_arr.add(k);
         
         valueMax = y.get(0);
@@ -160,7 +159,7 @@ public class LIPOApproach implements Approach {
                 logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: model checking result is infinite for instance " + instances.toString());
                 return;
             }
-            double yValue = result.getResult().doubleValue();
+            double yValue = optimalValue(result.getResult().doubleValue());
             y.add(yValue);
             if (valueMax < yValue) {
                 valueMaxSecond = valueMax;
@@ -240,6 +239,13 @@ public class LIPOApproach implements Approach {
         }
         
         return canImprove;
+    }
+    
+    private double optimalValue(double value) {
+        if (OptionsPacPMA.isOptimizationDirectionMin()) {
+            return -value;
+        }
+        return value;
     }
 
     private double upper_bound(int limit, Double[] x_prop, List<Double> y, List<Double[]> x, double k) {
