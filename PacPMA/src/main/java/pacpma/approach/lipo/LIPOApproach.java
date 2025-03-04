@@ -49,8 +49,8 @@ public class LIPOApproach implements Approach {
     private int iterationCounter;
 
     private double valueMax;
-    private Double[] coordinatesValueMax = null;
-    private double valueMaxSecond;
+    private Double[] coordinatesValueMax;
+    private Double valueMaxSecond = null;
     private Double[] coordinatesValueMaxSecond = null;
 
     public LIPOApproach(LogEngine logEngineInstance) {
@@ -63,7 +63,6 @@ public class LIPOApproach implements Approach {
     @Override
     public void doAnalysis() {
         Random randomNumberGenerator = new Random(OptionsPacPMA.getSeed());
-        
         
         InteractiveModelChecker modelChecker = new StormCWrapper();
         modelChecker.setModelType(OptionsPacPMA.getModelType());
@@ -219,18 +218,34 @@ public class LIPOApproach implements Approach {
             canImprove &= iterationCounter < icl;
         }
         
+        Double sc = OptionsPacPMA.getOptimizationStoppingValueAbsolute();
+        if (sc != null && valueMaxSecond != null) {
+            canImprove &= Math.abs(valueMax - valueMaxSecond) >= sc;
+        }
+        
+        sc = OptionsPacPMA.getOptimizationStoppingValueRelative();
+        if (sc != null && valueMaxSecond != null && valueMax != 0) {
+            canImprove &= Math.abs((valueMax - valueMaxSecond) / valueMax) >= sc;
+        }
+        
+        sc = OptionsPacPMA.getOptimizationStoppingParametersAbsolute();
+        if (sc != null && coordinatesValueMaxSecond != null) {
+            canImprove &= norm(coordinatesValueMax, coordinatesValueMaxSecond) >= sc;
+        }
+        
+        sc = OptionsPacPMA.getOptimizationStoppingParametersRelative();
+        double normCVM = norm(coordinatesValueMax);
+        if (sc != null && coordinatesValueMaxSecond != null && normCVM != 0) {
+            canImprove &= norm(coordinatesValueMax, coordinatesValueMaxSecond) / normCVM >= sc;
+        }
+        
         return canImprove;
     }
 
     private double upper_bound(int limit, Double[] x_prop, List<Double> y, List<Double[]> x, double k) {
         double min_value = Double.POSITIVE_INFINITY;
         for (int i = 0; i < limit; i++) {
-            double norm2 = 0;
-            Double[] xCoords = x.get(i);
-            for (int j = 0; j < x_prop.length; j++) {
-                norm2 = norm2 + Math.pow(x_prop[j] - xCoords[j], 2);
-            }
-            double cur_value = y.get(i) + k *  Math.sqrt(norm2);
+            double cur_value = y.get(i) + k *  norm(x.get(i), x_prop);
             if (min_value > cur_value) {
                 min_value = cur_value;
             }
@@ -238,4 +253,21 @@ public class LIPOApproach implements Approach {
         return min_value;
     }
     
+    private double norm(Double[] v1, Double[] v2) {
+        assert (v1.length == v2.length);
+        
+        double norm2 = 0;
+        for (int j = 0; j < v1.length; j++) {
+            norm2 = norm2 + Math.pow(v1[j] - v2[j], 2);
+        }
+        return Math.sqrt(norm2);
+    }
+    
+    private double norm(Double[] vect) {
+        double norm2 = 0;
+        for (int j = 0; j < vect.length; j++) {
+            norm2 = norm2 + Math.pow(vect[j], 2);
+        }
+        return Math.sqrt(norm2);
+    }
 }
