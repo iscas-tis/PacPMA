@@ -109,25 +109,37 @@ public class OptionsPacPMA {
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
+    public final static String NLOPT_ALGORITHM_AGS = "ags";
+    public final static String NLOPT_ALGORITHM_CRS2_LM = "crs2-lm";
     public final static String NLOPT_ALGORITHM_DIRECT = "direct";
     public final static String NLOPT_ALGORITHM_DIRECT_L = "direct-l";
-    public final static String NLOPT_ALGORITHM_DIRECT_L_RAND = "direct-l-rand";
-    public final static String NLOPT_ALGORITHM_DIRECT_NOSCAL = "direct-noscal";
     public final static String NLOPT_ALGORITHM_DIRECT_L_NOSCAL = "direct-l-noscal";
+    public final static String NLOPT_ALGORITHM_DIRECT_L_RAND = "direct-l-rand";
     public final static String NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL = "direct-l-rand-noscal";
-    public final static String NLOPT_ALGORITHM_DIRECT_ORIG = "direct-orig";
-    public final static String NLOPT_ALGORITHM_DIRECT_L_ORIG = "direct-l-orig";
+    public final static String NLOPT_ALGORITHM_DIRECT_NOSCAL = "direct-noscal";
+    public final static String NLOPT_ALGORITHM_ESCH = "esch";
+    public final static String NLOPT_ALGORITHM_ISRES = "isres";
+    public final static String NLOPT_ALGORITHM_MLSL = "mlsl";
+    public final static String NLOPT_ALGORITHM_MLSL_LDS = "mlsl-lds";
+    public final static String NLOPT_ALGORITHM_ORIG_DIRECT = "orig-direct";
+    public final static String NLOPT_ALGORITHM_ORIG_DIRECT_L = "orig-direct-l";
     public final static String DEFAULT_NLOPT_ALGORITHM = NLOPT_ALGORITHM_DIRECT;
     private final static Collection<String> COLLECTION_NLOPT_ALGORITHM = new HashSet<>();
     static {
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_AGS);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_CRS2_LM);
         COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT);
         COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L);
-        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_RAND);
-        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_NOSCAL);
         COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_NOSCAL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_RAND);
         COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL);
-        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_ORIG);
-        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_ORIG);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_ESCH);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_ISRES);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_MLSL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_MLSL_LDS);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_NOSCAL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_ORIG_DIRECT);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_ORIG_DIRECT_L);
     }
    
     private final static String DEFAULT_OPTIMIZATION_STOPPING_VALUE_ABSOLUTE = "1e-8";
@@ -1361,21 +1373,33 @@ public class OptionsPacPMA {
      */
     public static Algorithm getDirectAlgorithm() {
         switch (nloptAlgorithm) {
+        case NLOPT_ALGORITHM_AGS:
+            return Algorithm.GN_AGS;
+        case NLOPT_ALGORITHM_CRS2_LM:
+            return Algorithm.GN_CRS2_LM;
         case NLOPT_ALGORITHM_DIRECT:
             return Algorithm.GN_DIRECT;
         case NLOPT_ALGORITHM_DIRECT_L:
             return Algorithm.GN_DIRECT_L;
-        case NLOPT_ALGORITHM_DIRECT_L_RAND:
-            return Algorithm.GN_DIRECT_L_RAND;
-        case NLOPT_ALGORITHM_DIRECT_NOSCAL:
-            return Algorithm.GN_DIRECT_NOSCAL;
         case NLOPT_ALGORITHM_DIRECT_L_NOSCAL:
             return Algorithm.GN_DIRECT_L_NOSCAL;
+        case NLOPT_ALGORITHM_DIRECT_L_RAND:
+            return Algorithm.GN_DIRECT_L_RAND;
         case NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL:
             return Algorithm.GN_DIRECT_L_RAND_NOSCAL;
-        case NLOPT_ALGORITHM_DIRECT_ORIG:
+        case NLOPT_ALGORITHM_DIRECT_NOSCAL:
+            return Algorithm.GN_DIRECT_NOSCAL;
+        case NLOPT_ALGORITHM_ESCH:
+            return Algorithm.GN_ESCH;
+        case NLOPT_ALGORITHM_ISRES:
+            return Algorithm.GN_ISRES;
+        case NLOPT_ALGORITHM_MLSL:
+            return Algorithm.GN_MLSL;
+        case NLOPT_ALGORITHM_MLSL_LDS:
+            return Algorithm.GN_MLSL_LDS;
+        case NLOPT_ALGORITHM_ORIG_DIRECT:
             return Algorithm.GN_ORIG_DIRECT;
-        case NLOPT_ALGORITHM_DIRECT_L_ORIG:
+        case NLOPT_ALGORITHM_ORIG_DIRECT_L:
             return Algorithm.GN_ORIG_DIRECT_L;
         default:
             throw new UnsupportedOperationException("Unexpected NLOPT algorithm " + nloptAlgorithm);
