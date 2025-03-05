@@ -34,6 +34,23 @@ public final class PacPMA {
         if (OptionsPacPMA.parseOptions(args)) {
             LogEngine logEngineInstance = OptionsPacPMA.getLogEngineInstance();
             logEngineInstance.setup(OptionsPacPMA.getLogLevel(), OptionsPacPMA.getLogFile());
+            
+            {
+                StringBuffer clo = new StringBuffer();
+                clo.append("PacPMA: command line arguments: [");
+                boolean isFirst = true;
+                for (String arg : args) {
+                    if (isFirst) {
+                        isFirst = false;
+                    } else {
+                        clo.append(", ");
+                    }
+                    clo.append(arg);
+                }
+                clo.append(']');
+                logEngineInstance.log(LogEngine.LEVEL_INFO, clo.toString());
+            }
+            
             Approach approach = OptionsPacPMA.getApproachInstance();
             approach.doAnalysis();
             logEngineInstance.close();
