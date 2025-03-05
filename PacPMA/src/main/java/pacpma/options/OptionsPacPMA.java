@@ -1338,11 +1338,10 @@ public class OptionsPacPMA {
     /**
      * Generates and returns a new approach solver specified as option at command line.
      * 
-     * @param logEngineInstance the {@link LogEngine} instance to be used for logging.
-     * 
      * @return an instance of the chosen LP solver
      */
-    public static Approach getApproachInstance(LogEngine logEngineInstance) {
+    public static Approach getApproachInstance() {
+        LogEngine logEngineInstance = getLogEngineInstance();
         switch (approach) {
         case APPROACH_DIRECT:
             return new DIRECTApproach(logEngineInstance);
