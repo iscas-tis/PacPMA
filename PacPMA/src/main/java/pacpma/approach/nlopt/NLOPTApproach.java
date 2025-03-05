@@ -18,7 +18,7 @@
 
  *****************************************************************************/
 
-package pacpma.approach.direct;
+package pacpma.approach.nlopt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,18 +36,18 @@ import pacpma.modelchecker.interactive.storm.StormCWrapper;
 import pacpma.options.OptionsPacPMA;
 
 /**
- * DIRECT approach to find minimum.
+ * NLOPT approach to find minimum.
  * 
  * @author Andrea Turrini
  *
  */
-public class DIRECTApproach implements Approach {
+public class NLOPTApproach implements Approach {
     private static LogEngine logEngineInstance;
     private static List<Parameter> parameters;
     private static InteractiveModelChecker modelChecker;
     
-    public DIRECTApproach(LogEngine logEngineInstance) {
-        DIRECTApproach.logEngineInstance = logEngineInstance;
+    public NLOPTApproach(LogEngine logEngineInstance) {
+        NLOPTApproach.logEngineInstance = logEngineInstance;
         
         System.loadLibrary("nloptjni");
     }
@@ -77,9 +77,9 @@ public class DIRECTApproach implements Approach {
         optProblem.setUpperBounds(ub);
         
         if (OptionsPacPMA.isOptimizationDirectionMin()) {
-            optProblem.setMinObjective(DIRECTApproach::f);
+            optProblem.setMinObjective(NLOPTApproach::f);
         } else {
-            optProblem.setMaxObjective(DIRECTApproach::f);
+            optProblem.setMaxObjective(NLOPTApproach::f);
         }
         
         Double d = OptionsPacPMA.getOptimizationStoppingValueAbsolute();
@@ -105,7 +105,7 @@ public class DIRECTApproach implements Approach {
         
         double optVal = optProblem.lastOptimumValue();
         System.out.println("Number of iterations: " + optProblem.getNumevals());
-        logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: number of iterations: " + optProblem.getNumevals());
+        logEngineInstance.log(LogEngine.LEVEL_INFO, "NLOPTApproach: number of iterations: " + optProblem.getNumevals());
         
         Result result = optProblem.lastOptimizeResult();
         switch (result) {
@@ -120,13 +120,13 @@ public class DIRECTApproach implements Approach {
                 for (int i = 0; i < nPars; i++) {
                     optParameters.add(new Constant(parameters.get(i).getName(), resultVector.get(i).toString()));
                 }
-                logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
+                logEngineInstance.log(LogEngine.LEVEL_INFO, "NLOPTApproach: analysis completed; computed optimal value " + optVal + " at " + optParameters);
                 System.out.println("Optimal value: " + optVal);
                 System.out.println("Coordinates of optimal value: " + optParameters);
                 break;
             default:
-                logEngineInstance.log(LogEngine.LEVEL_INFO, "DIRECTApproach: failed analysis with result " + result);
-                System.out.println("DIRECTApproach: failed analysis with result " + result);
+                logEngineInstance.log(LogEngine.LEVEL_INFO, "NLOPTApproach: failed analysis with result " + result);
+                System.out.println("NLOPTApproach: failed analysis with result " + result);
                 break;
         }
     }
@@ -139,7 +139,7 @@ public class DIRECTApproach implements Approach {
         }
         ModelCheckerResult result = modelChecker.check(instances);
         if (result.isInfinite()) {
-            logEngineInstance.log(LogEngine.LEVEL_WARNING, "DIRECTApproach: model checking result is infinite for instance " + instances.toString());
+            logEngineInstance.log(LogEngine.LEVEL_WARNING, "NLOPTApproach: model checking result is infinite for instance " + instances.toString());
             return Double.POSITIVE_INFINITY;
         } else {
             return result.getResult().doubleValue();

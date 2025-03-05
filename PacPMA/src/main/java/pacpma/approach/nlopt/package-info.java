@@ -19,9 +19,9 @@
  *****************************************************************************/
 
 /**
- * The DIRECT approach to find minimum/maximum.
+ * The NLOPT approach to find minimum/maximum.
  * 
  * @author Andrea Turrini
  *
  */
-package pacpma.approach.direct;
+package pacpma.approach.nlopt;

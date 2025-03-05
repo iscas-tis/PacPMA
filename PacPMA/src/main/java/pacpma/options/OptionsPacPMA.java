@@ -43,7 +43,7 @@ import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.function.ExpressionFunction;
 import pacpma.algebra.polynomial.Polynomial;
 import pacpma.approach.Approach;
-import pacpma.approach.direct.DIRECTApproach;
+import pacpma.approach.nlopt.NLOPTApproach;
 import pacpma.approach.lipo.LIPOApproach;
 import pacpma.approach.scenario.ScenarioApproach;
 import pacpma.log.OnfileLogEngine;
@@ -99,35 +99,35 @@ public class OptionsPacPMA {
     }
     
     public final static String APPROACH_SCENARIO = "scenario";
-    public final static String APPROACH_DIRECT = "direct";
+    public final static String APPROACH_NLOPT = "nlopt";
     public final static String APPROACH_LIPO = "lipo";
     private final static String DEFAULT_APPROACH = APPROACH_SCENARIO;
     private final static Collection<String> COLLECTION_APPROACH = new HashSet<>();
     static {
-        COLLECTION_APPROACH.add(APPROACH_DIRECT);
+        COLLECTION_APPROACH.add(APPROACH_NLOPT);
         COLLECTION_APPROACH.add(APPROACH_LIPO);
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
     }
     
-    public final static String DIRECT_ALGORITHM_DIRECT = "direct";
-    public final static String DIRECT_ALGORITHM_DIRECT_L = "direct-l";
-    public final static String DIRECT_ALGORITHM_DIRECT_L_RAND = "direct-l-rand";
-    public final static String DIRECT_ALGORITHM_DIRECT_NOSCAL = "direct-noscal";
-    public final static String DIRECT_ALGORITHM_DIRECT_L_NOSCAL = "direct-l-noscal";
-    public final static String DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL = "direct-l-rand-noscal";
-    public final static String DIRECT_ALGORITHM_DIRECT_ORIG = "direct-orig";
-    public final static String DIRECT_ALGORITHM_DIRECT_L_ORIG = "direct-l-orig";
-    public final static String DEFAULT_DIRECT_ALGORITHM = DIRECT_ALGORITHM_DIRECT;
-    private final static Collection<String> COLLECTION_DIRECT_ALGORITHM = new HashSet<>();
+    public final static String NLOPT_ALGORITHM_DIRECT = "direct";
+    public final static String NLOPT_ALGORITHM_DIRECT_L = "direct-l";
+    public final static String NLOPT_ALGORITHM_DIRECT_L_RAND = "direct-l-rand";
+    public final static String NLOPT_ALGORITHM_DIRECT_NOSCAL = "direct-noscal";
+    public final static String NLOPT_ALGORITHM_DIRECT_L_NOSCAL = "direct-l-noscal";
+    public final static String NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL = "direct-l-rand-noscal";
+    public final static String NLOPT_ALGORITHM_DIRECT_ORIG = "direct-orig";
+    public final static String NLOPT_ALGORITHM_DIRECT_L_ORIG = "direct-l-orig";
+    public final static String DEFAULT_NLOPT_ALGORITHM = NLOPT_ALGORITHM_DIRECT;
+    private final static Collection<String> COLLECTION_NLOPT_ALGORITHM = new HashSet<>();
     static {
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_RAND);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_NOSCAL);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_NOSCAL);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_ORIG);
-        COLLECTION_DIRECT_ALGORITHM.add(DIRECT_ALGORITHM_DIRECT_L_ORIG);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_RAND);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_NOSCAL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_NOSCAL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_ORIG);
+        COLLECTION_NLOPT_ALGORITHM.add(NLOPT_ALGORITHM_DIRECT_L_ORIG);
     }
    
     private final static String DEFAULT_OPTIMIZATION_STOPPING_VALUE_ABSOLUTE = "1e-8";
@@ -422,12 +422,12 @@ public class OptionsPacPMA {
                 .desc("exploitation threshold ≥ 0 to enable exploitation in optimization-based approaches using exploitation; default: " + DEFAULT_EXPLOITATION_THRESHOLD)
                 .build();
     
-    private final static Option option_direct_algorithm = 
+    private final static Option option_nlopt_algorithm = 
             Option.builder()
-                .longOpt("direct-algorithm")
-                .argName(getAlternatives(COLLECTION_DIRECT_ALGORITHM))
+                .longOpt("nlopt-algorithm")
+                .argName(getAlternatives(COLLECTION_NLOPT_ALGORITHM))
                 .hasArg()
-                .desc("underlying DIRECT algorithm; default: " + DEFAULT_DIRECT_ALGORITHM + ". For details, see https://https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/#direct-and-direct-l")
+                .desc("underlying NLOPT algorithm; default: " + DEFAULT_NLOPT_ALGORITHM + ". For details, see https://https://nlopt.readthedocs.io/en/latest/NLopt_Algorithms/")
                 .build();
     
     private final static Option option_optimization_direction = 
@@ -619,7 +619,7 @@ public class OptionsPacPMA {
         options.addOption(option_approach);
         options.addOption(option_exploitation_limit);
         options.addOption(option_exploitation_threshold);
-        options.addOption(option_direct_algorithm);
+        options.addOption(option_nlopt_algorithm);
         options.addOption(option_optimization_direction);
         options.addOption(option_optimization_stopping_iteration_limit);
         options.addOption(option_optimization_stopping_value_absolute);
@@ -681,7 +681,7 @@ public class OptionsPacPMA {
     private static Double optimizationStoppingValueRelative = null;
     private static Double optimizationStoppingParametersAbsolute = null;
     private static Double optimizationStoppingParametersRelative = null;
-    private static String directAlgorithm = null;
+    private static String nloptAlgorithm = null;
     private static String modelchecker;
     private static String modelcheckerPath;
     private static List<String> modelcheckerOptions;
@@ -836,9 +836,9 @@ public class OptionsPacPMA {
                 }
                 exploitationThreshold = tmpDouble;
                 
-                directAlgorithm = commandline.getOptionValue(option_direct_algorithm, DEFAULT_DIRECT_ALGORITHM);
-                if (!COLLECTION_DIRECT_ALGORITHM.contains(directAlgorithm)) {
-                    parsingErrors.add(getInvalidMessage(commandline, option_direct_algorithm));
+                nloptAlgorithm = commandline.getOptionValue(option_nlopt_algorithm, DEFAULT_NLOPT_ALGORITHM);
+                if (!COLLECTION_NLOPT_ALGORITHM.contains(nloptAlgorithm)) {
+                    parsingErrors.add(getInvalidMessage(commandline, option_nlopt_algorithm));
                 }
                 
                 switch (commandline.getOptionValue(option_optimization_direction, DEFAULT_OPTIMIZATION_DIRECTION)) {
@@ -1343,8 +1343,8 @@ public class OptionsPacPMA {
     public static Approach getApproachInstance() {
         LogEngine logEngineInstance = getLogEngineInstance();
         switch (approach) {
-        case APPROACH_DIRECT:
-            return new DIRECTApproach(logEngineInstance);
+        case APPROACH_NLOPT:
+            return new NLOPTApproach(logEngineInstance);
         case APPROACH_LIPO:
             return new LIPOApproach(logEngineInstance);
         case APPROACH_SCENARIO:
@@ -1355,30 +1355,30 @@ public class OptionsPacPMA {
     }
     
     /**
-     * Returns the underlying DIRECT algorithm.
+     * Returns the underlying NLOPT algorithm.
      * 
-     * @return the DIRECT algorithm
+     * @return the NLOPT algorithm
      */
     public static Algorithm getDirectAlgorithm() {
-        switch (directAlgorithm) {
-        case DIRECT_ALGORITHM_DIRECT:
+        switch (nloptAlgorithm) {
+        case NLOPT_ALGORITHM_DIRECT:
             return Algorithm.GN_DIRECT;
-        case DIRECT_ALGORITHM_DIRECT_L:
+        case NLOPT_ALGORITHM_DIRECT_L:
             return Algorithm.GN_DIRECT_L;
-        case DIRECT_ALGORITHM_DIRECT_L_RAND:
+        case NLOPT_ALGORITHM_DIRECT_L_RAND:
             return Algorithm.GN_DIRECT_L_RAND;
-        case DIRECT_ALGORITHM_DIRECT_NOSCAL:
+        case NLOPT_ALGORITHM_DIRECT_NOSCAL:
             return Algorithm.GN_DIRECT_NOSCAL;
-        case DIRECT_ALGORITHM_DIRECT_L_NOSCAL:
+        case NLOPT_ALGORITHM_DIRECT_L_NOSCAL:
             return Algorithm.GN_DIRECT_L_NOSCAL;
-        case DIRECT_ALGORITHM_DIRECT_L_RAND_NOSCAL:
+        case NLOPT_ALGORITHM_DIRECT_L_RAND_NOSCAL:
             return Algorithm.GN_DIRECT_L_RAND_NOSCAL;
-        case DIRECT_ALGORITHM_DIRECT_ORIG:
+        case NLOPT_ALGORITHM_DIRECT_ORIG:
             return Algorithm.GN_ORIG_DIRECT;
-        case DIRECT_ALGORITHM_DIRECT_L_ORIG:
+        case NLOPT_ALGORITHM_DIRECT_L_ORIG:
             return Algorithm.GN_ORIG_DIRECT_L;
         default:
-            throw new UnsupportedOperationException("Unexpected DIRECT algorithm " + directAlgorithm);
+            throw new UnsupportedOperationException("Unexpected NLOPT algorithm " + nloptAlgorithm);
         }
     }
     
