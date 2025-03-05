@@ -199,6 +199,8 @@ public class LIPOApproach implements Approach {
         
         modelChecker.stopModelChecker();
         
+        valueMax = optimalValue(valueMax);
+        
         List<Constant> optParameters = new ArrayList<>(d);
         for (int i = 0; i < d; i++) {
             optParameters.add(new Constant(parameters[i].getName(), Double.toString(coordinatesValueMax[i])));
