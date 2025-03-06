@@ -109,6 +109,10 @@ public class LIPOApproach implements Approach {
             instances.add(new Constant(parameters[i].getName(), String.valueOf(coordinatesValueMax[i])));
         }
         ModelCheckerResult result = modelChecker.check(instances);
+        if (result == null) {
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "LIPOApproach: model checking result is null for instance " + instances.toString());
+            return;
+        }
         if (result.isInfinite()) {
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "LIPOApproach: model checking result is infinite for instance " + instances.toString());
             return;

@@ -138,6 +138,10 @@ public class NLOPTApproach implements Approach {
             instances.add(new Constant(parameters.get(i).getName(), String.valueOf(x[i])));
         }
         ModelCheckerResult result = modelChecker.check(instances);
+        if (result == null) {
+            logEngineInstance.log(LogEngine.LEVEL_ERROR, "NLOPTApproach: model checking result is null for instance " + instances.toString());
+            throw new IllegalStateException("NLOPTApproach: model checking result is null for instance " + instances.toString());
+        }
         if (result.isInfinite()) {
             logEngineInstance.log(LogEngine.LEVEL_WARNING, "NLOPTApproach: model checking result is infinite for instance " + instances.toString());
             return Double.POSITIVE_INFINITY;
