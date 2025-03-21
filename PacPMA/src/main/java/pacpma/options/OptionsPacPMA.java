@@ -43,7 +43,6 @@ import pacpma.algebra.TemplateFunction;
 import pacpma.algebra.function.ExpressionFunction;
 import pacpma.algebra.polynomial.Polynomial;
 import pacpma.approach.Approach;
-import pacpma.approach.bayesian.BayesianApproach;
 import pacpma.approach.nlopt.NLOPTApproach;
 import pacpma.approach.lipo.LIPOApproach;
 import pacpma.approach.scenario.ScenarioApproach;
@@ -99,14 +98,12 @@ public class OptionsPacPMA {
         COLLECTION_MODELTYPE.add(MODELTYPE_JANI);
     }
     
-    public final static String APPROACH_BAYESIAN = "bayesian";
     public final static String APPROACH_LIPO = "lipo";
     public final static String APPROACH_NLOPT = "nlopt";
     public final static String APPROACH_SCENARIO = "scenario";
     private final static String DEFAULT_APPROACH = APPROACH_SCENARIO;
     private final static Collection<String> COLLECTION_APPROACH = new HashSet<>();
     static {
-        COLLECTION_APPROACH.add(APPROACH_BAYESIAN);
         COLLECTION_APPROACH.add(APPROACH_LIPO);
         COLLECTION_APPROACH.add(APPROACH_NLOPT);
         COLLECTION_APPROACH.add(APPROACH_SCENARIO);
@@ -1358,8 +1355,6 @@ public class OptionsPacPMA {
     public static Approach getApproachInstance() {
         LogEngine logEngineInstance = getLogEngineInstance();
         switch (approach) {
-        case APPROACH_BAYESIAN:
-            return new BayesianApproach(logEngineInstance);
         case APPROACH_LIPO:
             return new LIPOApproach(logEngineInstance);
         case APPROACH_NLOPT:
