@@ -185,9 +185,9 @@ public class PrismSMCTool implements BatchModelChecker {
                     }
                     if (computeRange) {
                         if (range == null) {
-                            range = new Range(modelCheckerResult);
+                            range = new Range(modelCheckerResult, singleParameters);
                         } else {
-                            range.updateRange(modelCheckerResult);
+                            range.updateRange(modelCheckerResult, singleParameters);
                         }
                     }
                     logEngine.log(LogEngine.LEVEL_DEBUG, "PrismSMCTool: computed result: " + identifier + ":" + modelCheckerResult);

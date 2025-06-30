@@ -16,6 +16,7 @@
 package pacpma.util;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import pacpma.algebra.Constant;
 import pacpma.options.OptionsPacPMA;
@@ -161,6 +162,20 @@ public class Util {
         assert coefficients >= 0;
 
         return (int) Math.ceil((2 / epsilon) * (Math.log(1 / eta) + coefficients));
+    }
+    
+    
+    /**
+     * Formats the given constants as a pretty string to be printed
+     * @param constants the constants to be printed
+     * @return the formatted list of constants
+     */
+    public static String formatConstants(List<Constant> constants) {
+        final StringBuilder sb = new StringBuilder();
+        constants.forEach(c -> appendConstant(sb, c, ", "));
+        sb.insert(0, "[");
+        sb.append("]");
+        return sb.toString();
     }
     
     /**

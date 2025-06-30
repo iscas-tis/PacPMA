@@ -120,15 +120,17 @@ public class StormPython implements BatchModelChecker {
         command.add(modelType);
         command.add(filePath);
         command.add(propertyFormula);
-        
-        StringBuilder sbc = new StringBuilder();
-        constants.forEach(c -> appendConstant(sbc, c));
-        command.add(sbc.toString());
+
+        {
+            final StringBuilder sbc = new StringBuilder();
+            constants.forEach(c -> appendConstant(sbc, c));
+            command.add(sbc.toString());
+        }
         
         for (Integer identifier : parameterValues.keySet()) {
-            StringBuilder sbp = new StringBuilder();
-            sbp.append(identifier).append(FIELD_SEPARATOR);
+            final StringBuilder sbp = new StringBuilder();
             parameterValues.get(identifier).forEach(c -> appendConstant(sbp, c));
+            sbp.insert(0, identifier + FIELD_SEPARATOR);
             logEngine.log(LogEngine.LEVEL_DEBUG, "StormPython: sample " + sbp.toString());
             messages.add(sbp.toString());
         }
@@ -146,6 +148,7 @@ public class StormPython implements BatchModelChecker {
             logEngine.log(LogEngine.LEVEL_DEBUG, "StormPython: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
+                Integer identifier = Integer.valueOf(messageSplit[1]);
                 String result = messageSplit[2];
                 ModelCheckerResult modelCheckerResult;
                 if (result.equals("inf")) {
@@ -155,12 +158,14 @@ public class StormPython implements BatchModelChecker {
                 }
                 if (computeRange) {
                     if (range == null) {
-                        range = new Range(modelCheckerResult);
+                        range = new Range(modelCheckerResult, parameterValues.get(identifier));
                     } else {
-                        range.updateRange(modelCheckerResult);
+                        range.updateRange(modelCheckerResult, parameterValues.get(identifier));
                     }
                 }
-                results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
+                results.put(identifier, modelCheckerResult);
+            } else { //something wrong happened, probably a std::bad_alloc; just throw it
+                throw new IllegalStateException(message);
             }
         }
         logEngine.log(LogEngine.LEVEL_INFO, "StormPython: extracting results done");

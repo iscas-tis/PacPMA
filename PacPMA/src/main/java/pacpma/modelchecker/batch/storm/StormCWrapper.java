@@ -130,7 +130,7 @@ public class StormCWrapper implements BatchModelChecker {
         for (Integer identifier : parameterValues.keySet()) {
             final StringBuilder sbp = new StringBuilder();
             parameterValues.get(identifier).forEach(c -> appendConstant(sbp, c));
-            sbp.insert(0,identifier + FIELD_SEPARATOR);
+            sbp.insert(0, identifier + FIELD_SEPARATOR);
             logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: sample " + sbp.toString());
             messages.add(sbp.toString());
         }
@@ -148,6 +148,7 @@ public class StormCWrapper implements BatchModelChecker {
             logEngine.log(LogEngine.LEVEL_DEBUG, "StormCWrapper: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
+                Integer identifier = Integer.valueOf(messageSplit[1]);
                 String result = messageSplit[2];
                 ModelCheckerResult modelCheckerResult;
                 if (result.equals("inf")) {
@@ -157,12 +158,12 @@ public class StormCWrapper implements BatchModelChecker {
                 }
                 if (computeRange) {
                     if (range == null) {
-                        range = new Range(modelCheckerResult);
+                        range = new Range(modelCheckerResult, parameterValues.get(identifier));
                     } else {
-                        range.updateRange(modelCheckerResult);
+                        range.updateRange(modelCheckerResult, parameterValues.get(identifier));
                     }
                 }
-                results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
+                results.put(identifier, modelCheckerResult);
             } else { //something wrong happened, probably a std::bad_alloc; just throw it
                 throw new IllegalStateException(message);
             }

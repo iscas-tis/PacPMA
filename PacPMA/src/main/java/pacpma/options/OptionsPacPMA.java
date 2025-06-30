@@ -244,6 +244,7 @@ public class OptionsPacPMA {
     private final static String DEFAULT_LOGFILE = "pacpma.log";
     
     private final static String DEFAULT_SHOW_RANGE = "false";
+    private final static String DEFAULT_SHOW_RANGE_PARAMETERS = "false";
 
     private final static Options options = new Options();
 
@@ -295,6 +296,12 @@ public class OptionsPacPMA {
             Option.builder()
                 .longOpt("showrange")
                 .desc("whether to show the range of the values returned by the model checker; default: " + DEFAULT_SHOW_RANGE)
+                .build();
+
+    private final static Option option_show_range_parameters = 
+            Option.builder()
+                .longOpt("showrangeparameters")
+                .desc("whether to show the parameters corresponding to the range of the values returned by the model checker; default: " + DEFAULT_SHOW_RANGE_PARAMETERS)
                 .build();
 
     private final static Option option_samples = 
@@ -613,7 +620,8 @@ public class OptionsPacPMA {
         options.addOption(option_statistics);
         
         options.addOption(option_show_range);
-        
+        options.addOption(option_show_range_parameters);
+       
         options.addOption(option_samples);
         options.addOption(option_vertices);
         options.addOption(option_boundary_points);
@@ -657,7 +665,8 @@ public class OptionsPacPMA {
     private static boolean printStatistics;
     
     private static boolean showRange;
-    
+    private static boolean showRangeParameters;
+   
     private static String logEngine;
     private static int logLevel;
     private static String logFile;
@@ -737,7 +746,8 @@ public class OptionsPacPMA {
                 printStatistics = commandline.hasOption(option_statistics);
                 
                 showRange = commandline.hasOption(option_show_range);
-                
+                showRangeParameters = commandline.hasOption(option_show_range_parameters);
+               
                 logEngine = commandline.getOptionValue(option_logEngine, DEFAULT_LOGENGINE);
                 if (!COLLECTION_LOGENGINE.contains(logEngine)) {
                     parsingErrors.add(getInvalidMessage(commandline, option_logEngine));
@@ -1124,6 +1134,13 @@ public class OptionsPacPMA {
     }
 
     /**
+     * @return whether to show the parameters corresponding to the range
+     */
+    public static boolean showRangeParameters() {
+        return showRangeParameters;
+    }
+
+   /**
      * @return whether to generate debug information
      */
     public static boolean generateDebugInformation() {

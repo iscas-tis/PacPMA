@@ -193,9 +193,9 @@ public class StormCWrapper implements InteractiveModelChecker, ModelChecker {
             }
             if (computeRange) {
                 if (range == null) {
-                    range = new Range(modelCheckerResult);
+                    range = new Range(modelCheckerResult, parameterValues);
                 } else {
-                    range.updateRange(modelCheckerResult);
+                    range.updateRange(modelCheckerResult, parameterValues);
                 }
             }
         } else { //something wrong happened, probably a std::bad_alloc; just throw it

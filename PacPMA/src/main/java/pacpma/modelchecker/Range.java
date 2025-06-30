@@ -20,6 +20,10 @@
 
 package pacpma.modelchecker;
 
+import java.util.List;
+
+import pacpma.algebra.Constant;
+
 /**
  * A simple class representing intervals for model checker results
  * @author Andrea Turrini
@@ -28,13 +32,18 @@ package pacpma.modelchecker;
 public class Range {
     private ModelCheckerResult lowerbound = null;
     private ModelCheckerResult upperbound = null;
+    private List<Constant> lowerboundParameters = null;
+    private List<Constant> upperboundParameters = null;
+   
     
     public Range() {    
     }
     
-    public Range(ModelCheckerResult value) {
+    public Range(ModelCheckerResult value, List<Constant> parameters) {
         lowerbound = value;
         upperbound = value;
+        lowerboundParameters = parameters;
+        upperboundParameters = parameters;
     }
 
     /**
@@ -45,6 +54,13 @@ public class Range {
     }
 
     /**
+     * @return the parameters corresponding to the lower bound of the range
+     */
+    public List<Constant> getLowerboundParameters() {
+        return lowerboundParameters;
+    }
+
+    /**
      * @return the upper bound of the range
      */
     public ModelCheckerResult getUpperbound() {
@@ -52,23 +68,35 @@ public class Range {
     }
 
     /**
+     * @return the parameters corresponding to the upper bound of the range
+     */
+    public List<Constant> getUpperboundParameters() {
+        return upperboundParameters;
+    }
+
+    /**
      * Update the range to include the new value
      * @param value the value to be included in the range
+     * @param parameters the parameters corresponding to the {@code value}
      */
-    public void updateRange(ModelCheckerResult value) {
+    public void updateRange(ModelCheckerResult value, List<Constant> parameters) {
         if (lowerbound == null) {
             lowerbound = value;
+            lowerboundParameters = parameters;
         } else {
             if (lowerbound.compareTo(value) > 0) {
                 lowerbound = value;
+                lowerboundParameters = parameters;
             }
         }
         
         if (upperbound == null) {
             upperbound = value;
+            upperboundParameters = parameters;
         } else {
             if (upperbound.compareTo(value) < 0) {
                 upperbound = value;
+                upperboundParameters = parameters;
             }
         }
     }
@@ -80,17 +108,21 @@ public class Range {
     public void updateRange(Range range) {
         if (lowerbound == null) {
             lowerbound = range.lowerbound;
+            lowerboundParameters = range.lowerboundParameters;
         } else {
             if (lowerbound.compareTo(range.getLowerbound()) > 0) {
-                lowerbound = range.getLowerbound();
+                lowerbound = range.lowerbound;
+                lowerboundParameters = range.lowerboundParameters;
             }
         }
         
         if (upperbound == null) {
             upperbound = range.upperbound;
+            upperboundParameters = range.upperboundParameters;
         } else {
             if (upperbound.compareTo(range.getUpperbound()) < 0) {
-                upperbound = range.getUpperbound();
+                upperbound = range.upperbound;
+                upperboundParameters = range.upperboundParameters;
             }
         }
     }

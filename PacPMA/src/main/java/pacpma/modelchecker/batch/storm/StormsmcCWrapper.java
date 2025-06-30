@@ -163,6 +163,7 @@ public class StormsmcCWrapper implements BatchModelChecker {
             logEngine.log(LogEngine.LEVEL_DEBUG, "StormsmcCWrapper: raw result: " + message);
             if (message.startsWith(RESULT_IDENTIFIER)) {
                 String[] messageSplit = message.split(FIELD_SEPARATOR);
+                Integer identifier = Integer.valueOf(messageSplit[1]);
                 String result = messageSplit[2];
                 ModelCheckerResult modelCheckerResult;
                 if (result.equals("inf")) {
@@ -172,12 +173,14 @@ public class StormsmcCWrapper implements BatchModelChecker {
                 }
                 if (computeRange) {
                     if (range == null) {
-                        range = new Range(modelCheckerResult);
+                        range = new Range(modelCheckerResult, parameterValues.get(identifier));
                     } else {
-                        range.updateRange(modelCheckerResult);
+                        range.updateRange(modelCheckerResult, parameterValues.get(identifier));
                     }
                 }
-                results.put(Integer.valueOf(messageSplit[1]), modelCheckerResult);
+                results.put(identifier, modelCheckerResult);
+            } else { //something wrong happened, probably a std::bad_alloc; just throw it
+                throw new IllegalStateException(message);
             }
         }
         logEngine.log(LogEngine.LEVEL_INFO, "StormsmcCWrapper: extracting results done");

@@ -20,6 +20,8 @@
 
 package pacpma.approach.scenario;
 
+import static pacpma.util.Util.formatConstants;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,6 +163,12 @@ public class ScenarioApproach implements Approach {
             Range range = modelcheckerparallel.getRange();
             logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
             System.out.println("Computed range: [" + range.getLowerbound() + ", " + range.getUpperbound() + "]");
+            if (OptionsPacPMA.showRangeParameters()) {
+                logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: range lower bound parameters: " + formatConstants(range.getLowerboundParameters()));
+                System.out.println("Range lower bound parameters: " + formatConstants(range.getLowerboundParameters()));
+                logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: range upper bound parameters: " + formatConstants(range.getUpperboundParameters()));
+                System.out.println("Range upper bound parameters: " + formatConstants(range.getUpperboundParameters()));
+            }
         }
         
         logEngineInstance.log(LogEngine.LEVEL_INFO, "ScenarioApproach: Collecting model checker results");
