@@ -227,8 +227,10 @@ public class ScenarioApproach implements Approach {
             }
             System.out.println("Value of λ: " + lambdaValue);
             System.out.println("Appromixated function: " + templateExpression);
+            System.out.println("Number of samples: " + samples.size());
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Value of λ: " + lambdaValue);
             logEngineInstance.log(LogEngine.LEVEL_INFO, "Appromixated function: " + templateExpression);
+            logEngineInstance.log(LogEngine.LEVEL_INFO, "Number of samples: " + samples.size());
         }
     } 
 
