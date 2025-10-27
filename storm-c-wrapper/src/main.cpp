@@ -13,7 +13,6 @@
 #include "storm/models/sparse/Dtmc.h"
 #include "storm/models/sparse/Mdp.h"
 #include "storm/models/sparse/Model.h"
-#include "storm/settings/SettingsManager.h"
 #include "storm/settings/modules/GeneralSettings.h"
 #include "storm/utility/initialize.h"
 #include "storm/utility/constants.h"
@@ -138,7 +137,7 @@ int main (int argc, char *argv[]) {
     storm::utility::setLogLevel(l3pp::LogLevel::OFF);
 
     // Set some settings objects.
-    storm::settings::initializeAll("storm-c-wrapper", "storm-c-wrapper");
+    storm::settings::initializeAll("Storm", "storm");
 
     std::vector<std::string> arguments;
     arguments.reserve(argc);
@@ -148,6 +147,14 @@ int main (int argc, char *argv[]) {
     std::string modelFile = arguments[2];
     std::string propertyFormula = arguments[3];
     std::string constants = arguments[4];
+    if (argc > 5) {
+        std::string options("--precision 1e-10 --maxiter ");
+        options.append(arguments[5]);
+        storm::settings::mutableManager().setFromString(options);
+    }
+
+    storm::utility::setOutputDigitsFromGeneralPrecision(storm::settings::getModule<storm::settings::modules::GeneralSettings>().getPrecision());
+
 
     std::shared_ptr<storm::models::sparse::Model<storm::RationalFunction>> common_model;
     std::shared_ptr<storm::logic::Formula const> formula;
