@@ -12,10 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(storm REQUIRED)
 
 # specify source files
-set(SOURCE_FILES src/main.cpp)
+set(SOURCE_DIR ${CMAKE_SOURCE_DIR}/src)
 
 # set executable
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_FILES} ${storm_INCLUDE_DIR} ${storm-parsers_INCLUDE_DIR} ${storm-pars_INCLUDE_DIR})
+add_executable(${PROJECT_NAME} ${SOURCE_DIR}/main.cpp)
+target_include_directories(${PROJECT_NAME} PUBLIC ${SOURCE_DIR} ${storm_INCLUDE_DIR} ${storm-parsers_INCLUDE_DIR} ${storm-pars_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE storm storm-parsers storm-pars)
 
