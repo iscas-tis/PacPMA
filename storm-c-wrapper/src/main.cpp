@@ -46,7 +46,7 @@ std::map<storm::RationalFunctionVariable, storm::RationalFunctionCoefficient> ge
     return valuation;
 }
 
-void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFunction>> ctmc, std::shared_ptr<storm::logic::Formula const> formula) {
+void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFunction>> ctmc, std::shared_ptr<storm::logic::Formula const> formula, storm::Environment env) {
     storm::utility::ModelInstantiator<storm::models::sparse::Ctmc<storm::RationalFunction>, storm::models::sparse::Ctmc<double>> modelInstantiator(*ctmc);
 
     std::set<storm::RationalFunctionVariable> variables = storm::models::sparse::getAllParameters(*ctmc);
@@ -66,7 +66,7 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
 
         storm::modelchecker::SparseCtmcCslModelChecker<storm::models::sparse::Ctmc<double>> checker(concrete_model);
             
-        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(env, *formula);
             
         storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
             
@@ -74,7 +74,7 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
     }
 }
 
-void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFunction>> dtmc, std::shared_ptr<storm::logic::Formula const> formula) {
+void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFunction>> dtmc, std::shared_ptr<storm::logic::Formula const> formula, storm::Environment env) {
     storm::utility::ModelInstantiator<storm::models::sparse::Dtmc<storm::RationalFunction>, storm::models::sparse::Dtmc<double>> modelInstantiator(*dtmc);
 
     std::set<storm::RationalFunctionVariable> variables = storm::models::sparse::getAllParameters(*dtmc);
@@ -94,7 +94,7 @@ void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFuncti
 
         storm::modelchecker::SparseDtmcPrctlModelChecker<storm::models::sparse::Dtmc<double>> checker(concrete_model);
             
-        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(env, *formula);
             
         storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
             
@@ -102,7 +102,7 @@ void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFuncti
     }
 }
 
-void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction>> mdp, std::shared_ptr<storm::logic::Formula const> formula) {
+void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction>> mdp, std::shared_ptr<storm::logic::Formula const> formula, storm::Environment env) {
     storm::utility::ModelInstantiator<storm::models::sparse::Mdp<storm::RationalFunction>, storm::models::sparse::Mdp<double>> modelInstantiator(*mdp);
 
     std::set<storm::RationalFunctionVariable> variables = storm::models::sparse::getAllParameters(*mdp);
@@ -122,7 +122,7 @@ void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction
 
         storm::modelchecker::SparseMdpPrctlModelChecker<storm::models::sparse::Mdp<double>> checker(concrete_model);
             
-        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(*formula);
+        std::unique_ptr<storm::modelchecker::CheckResult> checkerResult = checker.check(env, *formula);
             
         storm::modelchecker::ExplicitQuantitativeCheckResult<double>& quantitativeResult = checkerResult->asExplicitQuantitativeCheckResult<double>();
             
@@ -147,10 +147,22 @@ int main (int argc, char *argv[]) {
     std::string modelFile = arguments[2];
     std::string propertyFormula = arguments[3];
     std::string constants = arguments[4];
+    std::string method = "jacobi";
     if (argc > 5) {
-        std::string options("--precision 1e-10 --maxiter ");
-        options.append(arguments[5]);
-        storm::settings::mutableManager().setFromString(options);
+        method = arguments[5];
+    }
+
+    storm::Environment env;
+    env.solver().setForceSoundness(true);
+    env.solver().setLinearEquationSolverType(storm::solver::EquationSolverType::Native);
+
+    switch(method) {
+        case "abovi":
+            env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
+            break;
+        case "jacobi":
+        default:
+            env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::Jacobi);
     }
 
     storm::utility::setOutputDigitsFromGeneralPrecision(storm::settings::getModule<storm::settings::modules::GeneralSettings>().getPrecision());
@@ -197,16 +209,16 @@ int main (int argc, char *argv[]) {
     if (common_model->isDiscreteTimeModel()) {
         // discrete time models
         if (common_model->isNondeterministicModel()) {
-            checkMdp(common_model->as<storm::models::sparse::Mdp<storm::RationalFunction>>(), formula);
+            checkMdp(common_model->as<storm::models::sparse::Mdp<storm::RationalFunction>>(), formula, env);
         } else {
-            checkDtmc(common_model->as<storm::models::sparse::Dtmc<storm::RationalFunction>>(), formula);
+            checkDtmc(common_model->as<storm::models::sparse::Dtmc<storm::RationalFunction>>(), formula, evn);
         }
     } else {
         // continuous time model
         if (common_model->isNondeterministicModel()) {
             return -3;
         } else {
-            checkCtmc(common_model->as<storm::models::sparse::Ctmc<storm::RationalFunction>>(), formula);
+            checkCtmc(common_model->as<storm::models::sparse::Ctmc<storm::RationalFunction>>(), formula, env);
         }
     }
     return 0;
