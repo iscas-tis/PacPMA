@@ -158,13 +158,10 @@ int main (int argc, char *argv[]) {
     env.solver().setForceSoundness(true);
     env.solver().setLinearEquationSolverType(storm::solver::EquationSolverType::Native);
 
-    switch(method) {
-        case "abovi":
-            env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
-            break;
-        case "jacobi":
-        default:
-            env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::Jacobi);
+    if (method == "abovi") {
+        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
+    } else {
+        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::Jacobi);
     }
 
     storm::utility::setOutputDigitsFromGeneralPrecision(storm::settings::getModule<storm::settings::modules::GeneralSettings>().getPrecision());
