@@ -8,6 +8,8 @@
 #include "storm-config.h"
 #include "storm/adapters/RationalFunctionAdapter.h"
 #include "storm/api/storm.h"
+#include "storm/environment/Environment.h"
+#include "storm/environment/solver/NativeSolverEnvironment.h"
 #include "storm/modelchecker/results/ExplicitQuantitativeCheckResult.h"
 #include "storm/models/sparse/Ctmc.h"
 #include "storm/models/sparse/Dtmc.h"
@@ -211,7 +213,7 @@ int main (int argc, char *argv[]) {
         if (common_model->isNondeterministicModel()) {
             checkMdp(common_model->as<storm::models::sparse::Mdp<storm::RationalFunction>>(), formula, env);
         } else {
-            checkDtmc(common_model->as<storm::models::sparse::Dtmc<storm::RationalFunction>>(), formula, evn);
+            checkDtmc(common_model->as<storm::models::sparse::Dtmc<storm::RationalFunction>>(), formula, env);
         }
     } else {
         // continuous time model
