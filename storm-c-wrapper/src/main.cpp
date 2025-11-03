@@ -60,16 +60,22 @@ void applyMethod(storm::Environment env, std::string method) {
     }
 }
 
-void applyABOVIOptions(storm::Environment env, std::string values) {
+void applyOptions(storm::Environment env, std::string values) {
 
     std::vector<std::string> optionValues;
-    boost::split(optionValues, values, boost::is_any_of("#"));
+    boost::split(optionValues, values, boost::is_any_of(","));
 
-    // predefined and fixed order in the values: effective tolerance, spectral lower bound, spectral upper bound
-
-    env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(optionValues[0]));
-    env.solver().minMax().setABOVISpectralLowerBound(storm::utility::convertNumber<storm::RationalNumber>(optionValues[1]));
-    env.solver().minMax().setABOVISpectralUpperBound(storm::utility::convertNumber<storm::RationalNumber>(optionValues[2]));
+    for (const std::string & opValue : optionValues) {
+        std::vector<std::string> pair;
+        boost::split(pair, opValue, boost::is_any_of("="));
+        if (pair[0] == "MAX-ITER") {
+            env.solver().native().setMaximalNumberOfIterations(std::stol(pair[1]));
+            env.solver().minMax().setMaximalNumberOfIterations(std::stol(pair[1]));
+        } else if (pair[0] == "ABOVI-EFFECTIVE-TOLERANCE") {
+            env.solver().native().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
+            env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
+        }
+    }
 }
 
 void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFunction>> ctmc, std::shared_ptr<storm::logic::Formula const> formula, storm::Environment env) {
@@ -88,8 +94,8 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
 
         if (instanceValues[0] == "USE-METHOD") {
             applyMethod(env, instanceValues[1]);
-        } else if (instanceValues[0] == "OPTIONS-ABOVI") {
-            applyABOVIOptions(env, instanceValues[1]);
+        } else if (instanceValues[0] == "OPTIONS") {
+            applyOptions(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
@@ -123,7 +129,7 @@ void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFuncti
         if (instanceValues[0] == "USE-METHOD") {
             applyMethod(env, instanceValues[1]);
         } else if (instanceValues[0] == "OPTIONS-ABOVI") {
-            applyABOVIOptions(env, instanceValues[1]);
+            applyOptions(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
@@ -157,7 +163,7 @@ void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction
         if (instanceValues[0] == "USE-METHOD") {
             applyMethod(env, instanceValues[1]);
         } else if (instanceValues[0] == "OPTIONS-ABOVI") {
-            applyABOVIOptions(env, instanceValues[1]);
+            applyOptions(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
