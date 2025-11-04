@@ -51,7 +51,7 @@ std::map<storm::RationalFunctionVariable, storm::RationalFunctionCoefficient> ge
 }
 
 void applyMethod(storm::Environment &env, std::string method) {
-    if (method == "abovi") {
+    if (method == "ABOVI") {
         env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
         env.solver().minMax().setMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
         env.solver().topological().setUnderlyingMinMaxMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
