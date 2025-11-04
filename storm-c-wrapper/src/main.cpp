@@ -74,6 +74,9 @@ void applyOptions(storm::Environment env, std::string values) {
         } else if (pair[0] == "ABOVI-EFFECTIVE-TOLERANCE") {
             env.solver().native().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
             env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
+        } else if (pair[0] == "ABOVI-PRINT-ESTIMATED-ERROR") {
+            env.solver().native().setABOVIPrintEstimatedError("true" == pair[1]);
+            env.solver().minMax().setABOVIPrintEstimatedError("true" == pair[1]);
         }
     }
 }
