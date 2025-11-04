@@ -50,6 +50,18 @@ std::map<storm::RationalFunctionVariable, storm::RationalFunctionCoefficient> ge
     return valuation;
 }
 
+void applyMethod(storm::Environment &env, std::string method) {
+    if (method == "abovi") {
+        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
+        env.solver().minMax().setMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
+        env.solver().topological().setUnderlyingMinMaxMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
+    } else {
+        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::Jacobi);
+        env.solver().minMax().setMethod(storm::solver::MinMaxMethod::Topological);
+        env.solver().topological().setUnderlyingMinMaxMethod(storm::solver::MinMaxMethod::ValueIteration);
+    }
+}
+
 void applyOptions(storm::Environment &env, std::string values) {
 
     std::vector<std::string> optionValues;
@@ -86,6 +98,8 @@ void checkCtmc(std::shared_ptr<storm::models::sparse::Ctmc<storm::RationalFuncti
 
         if (instanceValues[0] == "OPTIONS") {
             applyOptions(env, instanceValues[1]);
+        } else if (instanceValues[0] == "METHOD") {
+            applyMethod(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
@@ -118,6 +132,8 @@ void checkDtmc(std::shared_ptr<storm::models::sparse::Dtmc<storm::RationalFuncti
 
         if (instanceValues[0] == "OPTIONS") {
             applyOptions(env, instanceValues[1]);
+        } else if (instanceValues[0] == "METHOD") {
+            applyMethod(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
@@ -150,6 +166,8 @@ void checkMdp(std::shared_ptr<storm::models::sparse::Mdp<storm::RationalFunction
 
         if (instanceValues[0] == "OPTIONS") {
             applyOptions(env, instanceValues[1]);
+        } else if (instanceValues[0] == "METHOD") {
+            applyMethod(env, instanceValues[1]);
         } else {
             std::map<carl::Variable, storm::RationalFunctionCoefficient> parameterValues = getParameterValues(instanceValues[1], variables);
 
@@ -184,22 +202,16 @@ int main (int argc, char *argv[]) {
     std::string propertyFormula = arguments[3];
     std::string constants = arguments[4];
 
-
     storm::Environment env;
     env.solver().setLinearEquationSolverType(storm::solver::EquationSolverType::Topological);
     env.solver().topological().setUnderlyingEquationSolverType(storm::solver::EquationSolverType::Native);
-    if (argc > 5 && arguments[5] == "ABOVI") {
-        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::AdaptiveBayesianOptimizationValueIteration);
-        env.solver().minMax().setMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
-        env.solver().topological().setUnderlyingMinMaxMethod(storm::solver::MinMaxMethod::AdaptiveBayesianOptimizationValueIteration);
+    if (argc > 5) {
+        applyMethod(env, arguments[5]);
     } else {
-        env.solver().native().setMethod(storm::solver::NativeLinearEquationSolverMethod::Jacobi);
-        env.solver().minMax().setMethod(storm::solver::MinMaxMethod::Topological);
-        env.solver().topological().setUnderlyingMinMaxMethod(storm::solver::MinMaxMethod::ValueIteration);
+        applyMethod(env, "original");
     }
 
     storm::utility::setOutputDigitsFromGeneralPrecision(storm::settings::getModule<storm::settings::modules::GeneralSettings>().getPrecision());
-
 
     std::shared_ptr<storm::models::sparse::Model<storm::RationalFunction>> common_model;
     std::shared_ptr<storm::logic::Formula const> formula;
