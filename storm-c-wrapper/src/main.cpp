@@ -72,8 +72,8 @@ void applyOptions(storm::Environment env, std::string values) {
             env.solver().native().setMaximalNumberOfIterations(std::stol(pair[1]));
             env.solver().minMax().setMaximalNumberOfIterations(std::stol(pair[1]));
         } else if (pair[0] == "ABOVI-EFFECTIVE-TOLERANCE") {
-            env.solver().native().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
-            env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[0]));
+            env.solver().native().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[1]));
+            env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[1]));
         } else if (pair[0] == "ABOVI-PRINT-ESTIMATED-ERROR") {
             env.solver().native().setABOVIPrintEstimatedError("true" == pair[1]);
             env.solver().minMax().setABOVIPrintEstimatedError("true" == pair[1]);
