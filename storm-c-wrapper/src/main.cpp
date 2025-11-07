@@ -208,7 +208,7 @@ int main (int argc, char *argv[]) {
     if (argc > 5) {
         applyMethod(env, arguments[5]);
     } else {
-        applyMethod(env, "original");
+        applyMethod(env, "ORIGINAL");
     }
 
     storm::utility::setOutputDigitsFromGeneralPrecision(storm::settings::getModule<storm::settings::modules::GeneralSettings>().getPrecision());
