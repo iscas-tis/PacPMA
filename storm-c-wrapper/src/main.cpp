@@ -70,8 +70,9 @@ void applyOptions(storm::Environment &env, std::string values) {
         std::vector<std::string> pair;
         boost::split(pair, opValue, boost::is_any_of("="));
         if (pair[0] == "MAX-ITER") {
-            env.solver().native().setMaximalNumberOfIterations(std::stol(pair[1]));
-            env.solver().minMax().setMaximalNumberOfIterations(std::stol(pair[1]));
+            std::cout << "MAX-ITER old value (native): " << env.solver().native().getMaximalNumberOfIterations() << "\nMAX-ITER old value (min-max):" << env.solver().minMax().getMaximalNumberOfIterations() << "\n";
+            env.solver().native().setMaximalNumberOfIterations(std::stoull(pair[1]));
+            env.solver().minMax().setMaximalNumberOfIterations(std::stoull(pair[1]));
         } else if (pair[0] == "ABOVI-EFFECTIVE-TOLERANCE") {
             env.solver().native().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[1]));
             env.solver().minMax().setABOVIEffectiveTolerance(storm::utility::convertNumber<storm::RationalNumber>(pair[1]));
